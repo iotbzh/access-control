@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Liste des utilisateurs</h1>
+
+<div class="table-responsive">
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>UID</th>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Rôle</th>
+        <th>Actif</th>
+        <th>Date création</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td>{{ user.id }}</td>
+        <td>{{ user.uid }}</td>
+        <td>{{ user.name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.role }}</td>
+        <td>
+          <span class="badge bg-{{ 'success' if user.is_active else 'danger' }}">
+            {{ 'Oui' if user.is_active else 'Non' }}
+          </span>
+        </td>
+        <td>{{ user.created_at }}</td>
+        <td>
+          <a href="{{ url_for('users.edit', user_id=user.id) }}" class="btn btn-sm btn-warning me-1">Modifier</a>
+          <form method="POST" action="{{ url_for('users.delete', user_id=user.id) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible !');">
+            <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<a href="{{ url_for('users.add') }}" class="btn btn-success mt-3">Ajouter un utilisateur</a>
+{% endblock %}

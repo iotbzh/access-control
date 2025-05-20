@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Gestion des accès pour le rôle <span class="text-primary">{{ role }}</span></h1>
+
+    <form method="post">
+        <div class="mb-3">
+            {% for reader in readers %}
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="checkbox"
+                       name="readers"
+                       id="reader{{ reader.id }}"
+                       value="{{reader.id}}"
+                       {% if reader.id in allowed_readers %}checked{% endif %}>
+                <label class="form-check-label" for="reader{{ reader.id }}">
+                    {{ reader.name }}
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-success">Enregistrer</button>
+        <a href="{{ url_for('roles.index') }}" class="btn btn-secondary ms-2">Annuler</a>
+    </form>
+</div>
+{% endblock %}

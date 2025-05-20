@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Gestion des rôles</h1>
+        <a href="{{ url_for('roles.add') }}" class="btn btn-success">
+            <i class="bi bi-plus-lg"></i> Ajouter un rôle
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">Nom du rôle</th>
+                    <th scope="col" class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for role in roles %}
+                <tr>
+                    <td>{{ role.name }}</td>
+                    <td class="text-end">
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{{ url_for('roles.edit', role_id=role.id) }}" 
+                               class="btn btn-warning btn-sm">
+                                <i class="bi bi-pencil"></i> Modifier
+                            </a>
+                            
+                            <form method="POST" 
+                                  action="{{ url_for('roles.delete', role_id=role.id) }}" 
+                                  class="d-inline"
+                                  onsubmit="return confirm('Supprimer ce rôle ?');">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash"></i> Supprimer
+                                </button>
+                            </form>
+                            
+                            <a href="{{ url_for('roles.readers', role=role.id) }}" 
+                               class="btn btn-info btn-sm">
+                                <i class="bi bi-door-closed"></i> Portes
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Gestion des lecteurs de porte</h1>
+<a href="{{ url_for('readers.add') }}" class="btn btn-primary mb-3">
+    <i class="bi bi-door-open"></i> Ajouter un lecteur
+</a>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Description</th>
+            <th>Statut</th>
+            <th>État</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for reader in readers %}
+        <tr>
+            <td>{{ reader['name'] }}</td>
+            <td>{{ reader['description'] or '-' }}</td>
+            <td>
+                <span class="badge bg-{{ 'success' if reader['is_active'] else 'danger' }}">
+                    <i class="bi bi-{{ 'check-circle-fill' if reader['is_active'] else 'x-circle-fill' }}"></i>
+                    {{ 'Actif' if reader['is_active'] else 'Inactif' }}
+                </span>
+            </td>
+            <td>
+                <span class="badge bg-{{ 'success' if status[loop.index] == 'online' else 'secondary' }}">
+                    <i class="bi bi-{{ 'wifi' if status[loop.index] == 'online' else 'wifi-off' }}"></i>
+                    {{ 'Online' if status[loop.index] == 'online' else 'Offline' }}
+                </span>
+            </td>
+            <td class="d-flex gap-1">
+                <!-- Bouton Ouvrir -->
+                <!-- <form method="post" action="{ url_for('readers.open', reader_name=reader['name']) }">
+                    <button type="submit" class="btn btn-sm btn-outline-primary"
+                        title="Ouvrir la porte"
+                        onclick="return confirm(`Ouvrir la porte {{ reader['name'] }} ?`);">
+                        <i class="bi bi-door-open-fill"></i>
+                    </button>
+                </form> -->
+                <!-- Modifier -->
+                <a href="{{ url_for('readers.edit', reader_id=reader['id']) }}" class="btn btn-sm btn-warning" title="Modifier">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+                <!-- Supprimer -->
+                <form method="POST" action="{{ url_for('readers.delete', reader_id=reader['id']) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger"
+                            onclick="return confirm('Supprimer ce lecteur ?')" title="Supprimer">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

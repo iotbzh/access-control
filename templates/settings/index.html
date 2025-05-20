@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Settings</h1>
+        <form id="settings" method="post">
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check"></i> Sauvegarder
+            </button>
+        </form>
+    </div>
+
+    <div class="mt-4">
+        <h3>LDAP</h3>
+        <div class="row">
+            <label>
+                Enabled:
+                <input type="checkbox" name="ldap-enabled" {% if settings.ldap_enabled %}checked{% endif %} form="settings">
+                {% if settings.ldap_enabled %}
+                <span class="ms-2 figure-caption">LDAP users will be updated every day.</span>
+                {% endif %}
+            </label>
+        </div>
+        <div class="row">
+            <label>
+                Server:
+                <input type="text" name="ldap-server" placeholder="ldap://myserver.local" value="{{settings.ldap_server}}" form="settings">
+            </label>
+        </div>
+        <div class="row">
+            <label>
+                Default Role:
+                <select name="ldap-default-role" form="settings" required>
+                    {% for role in roles %}
+                        <option value="{{ role.id }}" {% if role.id == settings.ldap_default_role %}selected{% endif %}>{{ role.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <form action="ldap_retrieve" method="post">
+            <button {% if not settings.ldap_enabled %}disabled{% endif %} class="btn btn-secondary mt-2">Retrieve</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
