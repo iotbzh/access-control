@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Gestion des lecteurs de porte</h1>
+<a href="{{ url_for('add_zone') }}" class="btn btn-primary mb-3">
+    <i class="bi bi-door-open"></i> Ajouter un lecteur
+</a>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Description</th>
+            <th>Statut</th>
+            <th>État</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for zone in zones %}
+        <tr>
+            <td>{{ zone['name'] }}</td>
+            <td>{{ zone['description'] or '-' }}</td>
+            <td>
+                <span class="badge bg-{{ 'success' if zone['is_active'] else 'danger' }}">
+                    <i class="bi bi-{{ 'check-circle-fill' if zone['is_active'] else 'x-circle-fill' }}"></i>
+                    {{ 'Actif' if zone['is_active'] else 'Inactif' }}
+                </span>
+            </td>
+            <td>
+                <span class="badge bg-{{ 'success' if zone['status'] == 'online' else 'secondary' }}">
+                    <i class="bi bi-{{ 'wifi' if zone['status'] == 'online' else 'wifi-off' }}"></i>
+                    {{ 'Online' if zone['status'] == 'online' else 'Offline' }}
+                </span>
+            </td>
+            <td class="d-flex gap-1">
+                <!-- Bouton Ouvrir -->
+                <form method="post" action="{{ url_for('open_zone', zone_name=zone['name']) }}">
+                    <button type="submit" class="btn btn-sm btn-outline-primary"
+                        title="Ouvrir la porte"
+                        onclick="return confirm('Ouvrir la porte {{ zone['name'] }} ?');">
+                        <i class="bi bi-door-open-fill"></i>
+                    </button>
+                </form>
+                <!-- Modifier -->
+                <a href="{{ url_for('edit_zone', zone_id=zone['id']) }}" class="btn btn-sm btn-warning" title="Modifier">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+                <!-- Supprimer -->
+                <form method="POST" action="{{ url_for('delete_zone', zone_id=zone['id']) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger"
+                            onclick="return confirm('Supprimer ce lecteur ?')" title="Supprimer">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

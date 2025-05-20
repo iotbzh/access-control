@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Historique des accès</h1>
+
+    <form method="get" action="{{ url_for('logs') }}" class="row g-2 align-items-center mb-3">
+        <div class="col-auto">
+            <label for="per_page" class="form-label mb-0">Afficher :</label>
+        </div>
+        <div class="col-auto">
+            <select class="form-select" id="per_page" name="per_page" onchange="this.form.submit()">
+                <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
+                <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <span>logs par page</span>
+        </div>
+        <input type="hidden" name="page" value="1">
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Date/Heure</th>
+                    <th>UID</th>
+                    <th>Utilisateur</th>
+                    <th>Résultat</th>
+                    <th>Zone</th>
+                    <th>Raison</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log[2] }}</td>
+                    <td>{{ log[1] }}</td>
+                    <td>{{ log[7] or '-' }}</td>
+                    <td>{{ log[3] }}</td>
+                    <td>{{ log[4] }}</td>
+                    <td>{{ log[5] or '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <div>
+            <span>Page {{ page }} / {{ total_pages }} ({{ total_logs }} logs)</span>
+        </div>
+        <div>
+            <nav>
+                <ul class="pagination mb-0">
+                    {% if page > 1 %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('logs', page=page-1, per_page=per_page) }}" aria-label="Précédent">
+                            <span aria-hidden="true">&laquo; Précédent</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if page < total_pages %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('logs', page=page+1, per_page=per_page) }}" aria-label="Suivant">
+                            <span aria-hidden="true">Suivant &raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}

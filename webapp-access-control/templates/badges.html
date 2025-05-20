@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Liste des badges</h1>
+
+<form method="get" class="row g-3 mb-3">
+    <div class="col-auto">
+        <select name="user_id" class="form-select">
+            <option value="">-- Utilisateur --</option>
+            {% for user in users %}
+            <option value="{{ user['id'] }}" {% if user_id and user['id'] == user_id %}selected{% endif %}>{{ user['name'] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-auto">
+        <select name="is_active" class="form-select">
+            <option value="">-- Statut --</option>
+            <option value="1" {% if is_active == '1' %}selected{% endif %}>Actif</option>
+            <option value="0" {% if is_active == '0' %}selected{% endif %}>Inactif</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Filtrer</button>
+        <a href="{{ url_for('badges') }}" class="btn btn-secondary">Réinitialiser</a>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>UID</th>
+            <th>Utilisateur</th>
+            <th>Actif</th>
+            <th>Date de désactivation</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for badge in badges %}
+        <tr>
+            <td>{{ badge['id'] }}</td>
+            <td>{{ badge['uid'] }}</td>
+            <td>{{ badge['user_name'] or 'Aucun' }}</td>
+            <td>
+                <span class="badge bg-{{ 'success' if badge['is_active'] else 'danger' }}">
+                    {{ 'Oui' if badge['is_active'] else 'Non' }}
+                </span>
+            </td>
+            <td>{{ badge['deactivation_date'] or '-' }}</td>
+            <td>
+                <a href="{{ url_for('edit_badge', badge_id=badge['id']) }}" class="btn btn-sm btn-warning">Modifier</a>
+                <form method="POST" action="{{ url_for('delete_badge', badge_id=badge['id']) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce badge ?');">
+                    <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{{ url_for('add_badge') }}" class="btn btn-success mt-3">Ajouter un badge</a>
+{% endblock %}

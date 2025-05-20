@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Modifier le lecteur {{ zone[1] }}</h1>
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">Nom technique</label>
+        <input type="text" name="name" class="form-control" value="{{ zone[1] }}" required>
+    </div>
+    
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <input type="text" name="description" class="form-control" value="{{ zone[2] }}">
+    </div>
+    
+    <div class="mb-3 form-check">
+        <input type="checkbox" name="is_active" class="form-check-input" {{ 'checked' if zone[3] }}>
+        <label class="form-check-label">Activer ce lecteur</label>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+    <a href="{{ url_for('zones') }}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}

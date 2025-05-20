@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <div class="toolbar mb-3">
+        <button id="edit-mode" class="btn btn-warning">✏️ Mode Édition</button>
+        <button id="save-positions" class="btn btn-success d-none">💾 Enregistrer</button>
+    </div>
+    
+    <div id="svg-container">
+        <svg id="plan" viewBox="0 0 1000 800" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background -->
+            <rect width="100%" height="100%" fill="#f0f0f0" />
+            
+            <!-- Zones dynamiques -->
+            {% for zone in zones %}
+            <g class="zone" data-id="{{ zone.id }}" transform="translate({{ zone.x }},{{ zone.y }})">
+                <circle class="status-indicator" r="20" fill="#dc3545" />
+                <text y="35" text-anchor="middle">{{ zone.name }}</text>
+            </g>
+            {% endfor %}
+        </svg>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const socket = io();
+    let isEditMode = false;
+    let draggable = null;
+
+    // Gestion du mode édition
+    document.getElementById('edit-mode').addEventListener('click', () => {
+        isEditMode = !isEditMode;
+        document.querySelectorAll('.zone').forEach(zone => {
+            zone.style.cursor = isEditMode ? 'grab' : 'default';
+        });
+    });
+
+    // Mise à jour visuelle des statuts
+    socket.on('status_update', updates => {
+        Object.entries(updates).forEach(([zone, status]) => {
+            const element = document.querySelector(`.zone[data-id="${zone}"] .status-indicator`);
+            if(element) {
+                element.setAttribute('fill', 
+                    status === 'online' ? '#28a745' :
+                    status === 'alert' ? '#ffc107' : '#dc3545');
+            }
+        });
+    });
+
+    // Gestion du drag & drop
+    document.querySelectorAll('.zone').forEach(zone => {
+        zone.addEventListener('mousedown', startDrag);
+        zone.addEventListener('mousemove', drag);
+        zone.addEventListener('mouseup', endDrag);
+    });
+
+    function startDrag(e) {
+        if(!isEditMode) return;
+        draggable = e.target.closest('.zone');
+    }
+
+    function drag(e) {
+        if(!draggable) return;
+        const rect = document.getElementById('plan').getBoundingClientRect();
+        const x = e.clientX - rect.left - 20; // Ajustement pour le centre
+        const y = e.clientY - rect.top - 20;
+        draggable.setAttribute('transform', `translate(${x},${y})`);
+    }
+
+    function endDrag() {
+        draggable = null;
+    }
+});
+</script>
+{% endblock %}

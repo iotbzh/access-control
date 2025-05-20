@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Ajouter un rôle</h1>
+    <form method="post" class="row g-3">
+        <div class="col-md-6">
+            <label for="name" class="form-label">Nom du rôle :</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-success">Ajouter</button>
+            <a href="{{ url_for('roles') }}" class="btn btn-secondary ms-2">Retour à la liste</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

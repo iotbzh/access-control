@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Gestion des accès pour le rôle <span class="text-primary">{{ role }}</span></h1>
+
+    <form method="post">
+        <div class="mb-3">
+            {% for zone in zones %}
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="checkbox"
+                       name="zones"
+                       id="zone{{ zone[0] }}"
+                       value="{{ zone[0] }}"
+                       {% if zone[0] in allowed_zones %}checked{% endif %}>
+                <label class="form-check-label" for="zone{{ zone[0] }}">
+                    {{ zone[1] }}
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-success">Enregistrer</button>
+        <a href="{{ url_for('roles') }}" class="btn btn-secondary ms-2">Annuler</a>
+    </form>
+</div>
+{% endblock %}
