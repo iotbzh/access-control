@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Gateway: {{gateway.name}}</h1>
+    <form id="configs" method="post">
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-check"></i> Save
+        </button>
+    </form>
+</div>
+
+<h3>Configs:</h3>
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for config in gateway_interface.configs %}
+        <tr>
+            <td>{{ config.name }}</td>
+            <td>
+                <input name="{{config.name}}"  form="configs"
+                    {% if config.type.__name__ == "str" %}
+                        type="text"
+                        value="{{ gateway.configs.get(config.name) }}"
+                    {% elif config.type.__name__ == "int" %}
+                        type="number"
+                        value="{{ gateway.configs.get(config.name) }}"
+                    {% elif config.type.__name__ == "bool" %}
+                        type="checkbox"
+                        {% if gateway.configs.get(config.name) %}checked{% endif %}
+                    {% else %}
+                        type="text"
+                    {% endif %}
+                />
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<hr>
+<h3>Readers:</h3>
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>UID</th>
+            <th>Nom</th>
+            <th>Active</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for reader in readers %}
+        <tr>
+            <td>{{ reader['name'] }}</td>
+            <td>{{ reader['description'] or '-' }}</td>
+            <td>
+                <span class="badge bg-{{ 'success' if reader['is_active'] else 'danger' }}">
+                    <i class="bi bi-{{ 'check-circle-fill' if reader['is_active'] else 'x-circle-fill' }}"></i>
+                    {{ 'Actif' if reader['is_active'] else 'Inactif' }}
+                </span>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

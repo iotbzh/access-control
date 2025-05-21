@@ -17,6 +17,39 @@
         <input type="checkbox" name="is_active" class="form-check-input" {{ 'checked' if reader.is_active }}>
         <label class="form-check-label">Activer ce lecteur</label>
     </div>
+
+    <div class="col-md-6 mb-3">
+        <label for="gateway" class="form-label">Gateway :</label>
+        <select class="form-select" id="gateway" name="gateway" required>
+            {% for gateway in gateways %}
+                <option value="{{ gateway.uid }}" {% if gateway.id == reader.gateway %}selected{% endif %}>{{ gateway.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <hr>
+    <h3>Gateway reader config:</h3>
+
+    
+    {% for config in reader_interface %}
+        <div class="mb-3">
+            <label class="form-label">{{config}}</label>
+            <input name="gateway-{{config}}" class="form-control"
+                    {% if reader_interface[config].__name__ == "str" %}
+                        type="text"
+                        value="{{ reader.gateway_configs.get(config) }}"
+                    {% elif reader_interface[config].__name__ == "int" %}
+                        type="number"
+                        value="{{ reader.gateway_configs.get(config) }}"
+                    {% elif reader_interface[config].__name__ == "bool" %}
+                        type="checkbox"
+                        {% if reader.gateway_configs.get(config) %}checked{% endif %}
+                    {% else %}
+                        type="text"
+                    {% endif %}
+                />
+        </div>
+    {% endfor %}
     
     <button type="submit" class="btn btn-primary">Enregistrer</button>
     <a href="{{ url_for('readers.index') }}" class="btn btn-secondary">Annuler</a>

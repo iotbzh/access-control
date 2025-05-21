@@ -1,7 +1,8 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 
-from src.models import db, dbs, Badge, User, Reader
+from src.models import db, dbs, Badge, User, Reader, Gateway
 from src.auth import login_user, login_required, logout_user, current_user
+from src.gateways import Gateways
 
 bp = Blueprint('readers', __name__, url_prefix="/readers")
 
@@ -24,16 +25,18 @@ def add():
         name = request.form['name'].strip()
         description = request.form.get('description', '').strip()
         is_active = 1 if request.form.get('is_active') == 'on' else 0
+        gateway = request.form.get("gateway")
 
         try:
-            db.session.add(Reader(name=name, description=description, is_active=is_active))
+            db.session.add(Reader(name=name, description=description, is_active=is_active, gateway=gateway))
             db.session.commit()
             return redirect(url_for('readers.index'))
         except Exception as err:
             db.session.rollback()
             flash(f"Erreur : {err}", 'danger')
 
-    return render_template('readers/add.html')
+    gateways = Gateway.query.all()
+    return render_template('readers/add.html', gateways=gateways)
 
 @bp.route('/edit/<int:reader_id>', methods=['GET', 'POST'])
 @login_required
@@ -42,14 +45,23 @@ def edit(reader_id):
         name = request.form['name'].strip()
         description = request.form.get('description', '').strip()
         is_active = 1 if request.form.get('is_active') == 'on' else 0
+        gateway = request.form.get("gateway")
+        gateway_interface = Gateways.gateways.get(gateway)
 
-        dbs.execute(db.update(Reader).where(Reader.id == reader_id).values(name=name, description=description, is_active=is_active))
+        gateway_reader_configs = gateway_interface.reader_class.__annotations__
+        gateway_configs = {}
+
+        for config in gateway_reader_configs:
+            gateway_configs[config] = gateway_reader_configs[config](request.form.get("gateway-" + config))
+
+        dbs.execute(db.update(Reader).where(Reader.id == reader_id).values(name=name, description=description, is_active=is_active, gateway=gateway, gateway_configs=gateway_configs))
         dbs.commit()
         return redirect(url_for('readers.index'))
-    else:
-        reader = dbs.execute(db.select(Reader).where(Reader.id == reader_id)).scalar_one_or_none()
-        return render_template('readers/edit.html', reader=reader)
 
+    reader = dbs.execute(db.select(Reader).where(Reader.id == reader_id)).scalar_one_or_none()
+    gateways = Gateway.query.all()
+    reader_interface = Gateways.gateways.get(reader.gateway).reader_class.__annotations__
+    return render_template('readers/edit.html', reader=reader, gateways=gateways, reader_interface=reader_interface)
 
 @bp.route('/delete/<int:reader_id>', methods=['POST'])
 @login_required

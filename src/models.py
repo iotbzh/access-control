@@ -13,6 +13,8 @@ class Reader(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     pos_x = db.Column(db.Integer, default=100)
     pos_y = db.Column(db.Integer, default=100)
+    gateway = db.Column(db.String(64))
+    gateway_configs = db.Column(db.JSON)
 
     logs = db.relationship('Log', backref='zone', lazy=True)
     role_readers = db.relationship('RoleReader', backref='zone', lazy=True)
@@ -58,20 +60,18 @@ class Log(db.Model):
     __tablename__ = 'logs'
 
     id = db.Column(db.Integer, primary_key=True)
-    uid = db.Column(db.String(32))
     date_time = db.Column(db.DateTime, default=datetime.utcnow)
-    result = db.Column(db.String(16))
     reader_id = db.Column(db.Integer, db.ForeignKey('readers.id'))
-    reason = db.Column(db.String(255))
-    badge_id = db.Column(db.Integer)
+    badge_uid = db.Column(db.String(32))
     user_name = db.Column(db.String(100))
     user_id = db.Column(db.Integer)
-
+    result = db.Column(db.String(16))
+    reason = db.Column(db.String(255))
 
 class RoleReader(db.Model):
     __tablename__ = 'role_readers'
 
-    role = db.Column(db.String(50), primary_key=True)
+    role = db.Column(db.Integer, db.ForeignKey('roles.id'), primary_key=True)
     reader_id = db.Column(db.Integer, db.ForeignKey('readers.id'), primary_key=True)
 
 
@@ -88,3 +88,11 @@ class Setting(db.Model):
     ldap_enabled = db.Column(db.Boolean, default=False)
     ldap_server = db.Column(db.String(255))
     ldap_default_role = db.Column(db.Integer, default=0)
+
+class Gateway(db.Model):
+    __tablename__ = "gateways"
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(64), nullable=False)
+    name = db.Column(db.String(64), nullable=False)
+    configs = db.Column(db.JSON)

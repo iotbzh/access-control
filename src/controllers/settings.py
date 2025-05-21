@@ -16,8 +16,6 @@ def index():
         ldap_server = request.form.get("ldap-server")
         ldap_default_role = request.form.get("ldap-default-role")
 
-        print(ldap_enabled, ldap_server, ldap_default_role)
-        
         dbs.execute(db.update(Setting).values(
             ldap_enabled = ldap_enabled,
             ldap_server = ldap_server,

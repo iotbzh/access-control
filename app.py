@@ -16,12 +16,15 @@ from src.models import db, User, Role, Badge, Reader, Log
 from src.auth import login_user, login_required, logout_user, current_user
 from src.settings import Settings
 from src.schedules import init as init_schedules
+from src.gateways import Gateways
+from src.plugins import Plugins
 
 from src.controllers.users import bp as users_controller
 from src.controllers.badges import bp as badges_controller
 from src.controllers.readers import bp as readers_controller
 from src.controllers.roles import bp as roles_controller
 from src.controllers.settings import bp as settings_controller
+from src.controllers.gateways import bp as gateways_controller
 
 # --- Flask ---
 app = Flask(__name__)
@@ -33,13 +36,14 @@ app.register_blueprint(badges_controller)
 app.register_blueprint(readers_controller)
 app.register_blueprint(roles_controller)
 app.register_blueprint(settings_controller)
+app.register_blueprint(gateways_controller)
 
 # TODO: Auto create database when not initialized
-
 db.init_app(app)
 migrate = Migrate(app, db)
 
 # To migrate use "FLASK_MIGRATE=1 flask db migrate"
+# To upgrade use "FLASK_MIGRATE=1 flask db upgrade"
 if not os.getenv("FLASK_MIGRATE"):
     with app.app_context():
         Settings.init()
@@ -78,7 +82,8 @@ def login():
         user = users_dict.get(username)
         if user and user["password"] == password:  # Utilise un hash en prod !
             login_user(user)
-            return redirect(url_for('home'))
+            next_url = request.args.get("next", url_for("index"))
+            return redirect(next_url)
         flash('Identifiant ou mot de passe incorrect')
     return render_template('login.html')
 
@@ -215,5 +220,10 @@ def logs():
     )
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    socketio.run(app, port=5000, debug=True)
+    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+        with app.app_context():
+            Gateways.init_all(app)
+            Plugins.init_all(app)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+else:
+    print("Running with an other Werkzeug server")

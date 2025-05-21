@@ -17,6 +17,16 @@
         <input type="checkbox" name="is_active" class="form-check-input" checked>
         <label class="form-check-label">Activer ce lecteur</label>
     </div>
+
+    <div class="col-md-6 mb-3">
+        <label for="gateway" class="form-label">Gateway :</label>
+        <select class="form-select" id="gateway" name="gateway" required>
+            <option value="" disabled selected>Choose a gateway</option>
+            {% for gateway in gateways %}
+                <option value="{{ gateway.uid }}">{{ gateway.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
     
     <button type="submit" class="btn btn-success">Enregistrer</button>
     <a href="{{ url_for('readers.index') }}" class="btn btn-secondary">Annuler</a>

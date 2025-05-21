@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Gestion des gateways</h1>
+<a href="" class="btn btn-primary mb-3">
+    <i class="bi bi-arrow-clockwise"></i> Reload all gateways
+</a>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>UID</th>
+            <th>Nom</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for gateway in gateways %}
+        <tr>
+            <td>{{ gateway['uid'] }}</td>
+            <td>{{ gateway['name'] }}</td>
+            <td class="d-flex gap-1">
+                <a href="{{ url_for('gateways.view', gateway_uid=gateway["uid"]) }}" class="btn btn-sm btn-warning" title="Modifier">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
