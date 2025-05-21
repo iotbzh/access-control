@@ -10,5 +10,9 @@ class BaseGateway:
         pass
 
     @staticmethod
-    def job(reader, on_card):
+    def job(reader, on_badge):
+        pass
+
+    @staticmethod
+    def action(reader, authorized, badge_uid): # TODO: Rename this method...
         pass

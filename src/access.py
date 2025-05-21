@@ -26,7 +26,7 @@ def access_control(gateway, reader_instance, badge_uid):
     if not reader.is_active:
         log_access(reader.id, badge_uid, None, None, "denied", "Lecteur désactivé")
         print("Accès refusé. Lecteur désactivé.")
-        # REPLY TO GATEWAY
+        gateway.action(reader_instance, False, badge_uid)
         return
 
     badge = dbs.execute(db.select(Badge).where(Badge.uid == badge_uid)).scalar_one_or_none()
@@ -34,7 +34,7 @@ def access_control(gateway, reader_instance, badge_uid):
     if not badge:
         log_access(reader.id, badge_uid, None, None, "denied", "Badge invalide")
         print("Accès refusé. Badge invalide.")
-        # REPLY TO GATEWAY
+        gateway.action(reader_instance, False, badge_uid)
         return
     
     user = dbs.execute(db.select(User).where(User.id == badge.user_id)).scalar_one_or_none()
@@ -42,7 +42,7 @@ def access_control(gateway, reader_instance, badge_uid):
     if not user:
         log_access(reader.id, badge_uid, None, badge.user_id, "denied", "Badge non assigné")
         print("Accès refusé. Badge non assigné.")
-        # REPLY TO GATEWAY
+        gateway.action(reader_instance, False, badge_uid)
         return
 
     now = datetime.now()
@@ -55,17 +55,17 @@ def access_control(gateway, reader_instance, badge_uid):
     if not badge.is_active:
         log_access(reader.id, badge_uid, user.name, user.id, "denied", "Badge désactivé")
         print("Accès refusé. Badge désactivé.")
-        # REPLY TO GATEWAY
+        gateway.action(reader_instance, False, badge_uid)
         return
     elif badge.deactivation_date and badge.deactivation_date < now:
         log_access(reader.id, badge_uid, user.name, user.id, "denied", "Badge expiré")
         print("Accès refusé. Badge expiré.")
-        # REPLY TO GATEWAY
+        gateway.action(reader_instance, False, badge_uid)
         return
     elif not user.is_active:
         log_access(reader.id, badge_uid, user.name, user.id, "denied", "Utilisateur désactivé")
         print("Accès refusé. Utilisateur désactivé.")
-        # REPLY TO GATEWAY
+        gateway.action(reader_instance, False, badge_uid)
         return
 
     # -------
@@ -99,9 +99,9 @@ def access_control(gateway, reader_instance, badge_uid):
     if not role_reader:
         log_access(reader.id, badge_uid, user.name, user.id, "denied", "Zone non autorisée")
         print("Accès refusé. Zone non autorisée.")
-        # REPLY TO GATEWAY
+        gateway.action(reader_instance, False, badge_uid)
         return
 
     log_access(reader.id, badge_uid, user.name, user.id, "authorized", "OK")
     print("Accès autorisé, ouverture...")
-    # REPLY TO GATEWAY  
+    gateway.action(reader_instance, True, badge_uid)

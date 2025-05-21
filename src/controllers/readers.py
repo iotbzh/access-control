@@ -27,8 +27,15 @@ def add():
         is_active = 1 if request.form.get('is_active') == 'on' else 0
         gateway = request.form.get("gateway")
 
+        gateway_interface = Gateways.gateways.get(gateway)
+        gateway_reader_configs = gateway_interface.reader_class.__annotations__
+        gateway_configs = {}
+
+        for config in gateway_reader_configs:
+            gateway_configs[config] = getattr(gateway_interface.reader_class, config, None)
+
         try:
-            db.session.add(Reader(name=name, description=description, is_active=is_active, gateway=gateway))
+            db.session.add(Reader(name=name, description=description, is_active=is_active, gateway=gateway, gateway_configs=gateway_configs))
             db.session.commit()
             return redirect(url_for('readers.index'))
         except Exception as err:
