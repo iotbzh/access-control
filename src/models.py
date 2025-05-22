@@ -16,18 +16,12 @@ class Reader(db.Model):
     gateway = db.Column(db.String(64))
     gateway_configs = db.Column(db.JSON)
 
-    logs = db.relationship('Log', backref='zone', lazy=True)
-    role_readers = db.relationship('RoleReader', backref='zone', lazy=True)
-    # user_zones = db.relationship('UserZone', backref='zone', lazy=True)
-
 
 class Role(db.Model):
     __tablename__ = 'roles'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True)
-
-    users = db.relationship('User', backref='role_rel', lazy=True)
 
 
 class User(db.Model):
@@ -39,10 +33,6 @@ class User(db.Model):
     email = db.Column(db.String(100), nullable=False)
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    role = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
-
-    badges = db.relationship('Badge', backref='user', lazy=True)
-    # user_zones = db.relationship('UserZone', backref='user', lazy=True)
 
 
 class Badge(db.Model):
@@ -55,6 +45,7 @@ class Badge(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     guest_name = db.Column(db.String(64))
     company_name = db.Column(db.String(64))
+    role = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
 
 
 class Log(db.Model):
@@ -89,7 +80,6 @@ class Setting(db.Model):
 
     ldap_enabled = db.Column(db.Boolean, default=False)
     ldap_server = db.Column(db.String(255))
-    ldap_default_role = db.Column(db.Integer, default=0)
 
     openid_enabled = db.Column(db.Boolean, default=False)
     openid_client_id = db.Column(db.String(255))

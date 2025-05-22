@@ -53,7 +53,7 @@ def access_control(gateway, reader_instance, badge_uid):
 
     # DEBUG : Affiche le badge récupéré
     print("Badge récupéré :", badge.uid)
-    print("Rôle de l'utilisateur :", user.role)
+    print("Rôle de l'utilisateur :", badge.role)
 
     if not badge.is_active:
         log_access(reader.id, badge_uid, user.name, user.id, "denied", "Badge désactivé")
@@ -97,8 +97,7 @@ def access_control(gateway, reader_instance, badge_uid):
     #         client.publish(MQTT_TOPIC_LED, "NO")
     #         return
 
-    role_reader = dbs.execute(db.select(RoleReader).where(RoleReader.role == user.role)).scalar_one_or_none()
-    # TODO: FIX BIG EXPLOIT
+    role_reader = dbs.execute(db.select(RoleReader).where(RoleReader.role == badge.role and RoleReader.reader_id == reader_id)).scalar_one_or_none()
 
     if not role_reader:
         log_access(reader.id, badge_uid, user.name, user.id, "denied", "Zone non autorisée")

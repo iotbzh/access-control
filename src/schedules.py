@@ -31,8 +31,7 @@ def init(_app):
             return
         
         server = Settings.get("ldap_server")
-        default_role = Settings.get("ldap_default_role")
-        ldap_retrieve_users(server, default_role)
+        ldap_retrieve_users(server)
 
     schedule.every().days.do(ldap_retrieve_users_job)
 

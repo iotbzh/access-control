@@ -241,4 +241,4 @@ if __name__ == '__main__':
             Plugins.init_all(app)
     socketio.sock.run(app, host="0.0.0.0", port=5000, debug=True)
 else:
-    print("Running with an other Werkzeug server")
+    print("[DEBUG] Running with an other Werkzeug server")

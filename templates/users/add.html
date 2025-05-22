@@ -8,17 +8,7 @@
             <label for="name" class="form-label">Nom :</label>
             <input type="text" class="form-control" id="name" name="name" required>
         </div>
-
-        <div class="col-md-6">
-            <label for="role" class="form-label">Rôle :</label>
-            <select class="form-select" id="role" name="role" required>
-                <option value="" disabled selected>Choisir un rôle</option>
-                {% for role in roles %}
-                <option value="{{ role.id }}">{{ role.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
+        
         <div class="col-md-4">
             <label for="is_active" class="form-label">Utilisateur actif :</label>
             <div class="form-check">
