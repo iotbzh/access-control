@@ -30,6 +30,7 @@
         </td>
         <td>{{ user.created_at }}</td>
         <td>
+          <a href="{{ url_for('users.badges', user_id=user.id) }}" class="btn btn-sm btn-secondary"><i class="bi bi-credit-card-2-front-fill"></i></a>
           <a href="{{ url_for('users.edit', user_id=user.id) }}" class="btn btn-sm btn-warning me-1">Modifier</a>
           <form method="POST" action="{{ url_for('users.delete', user_id=user.id) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible !');">
             <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>

@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 
-from src.models import db, dbs, User
+from src.models import db, dbs, User, Badge
 from src.auth import login_user, login_required, logout_user, current_user
 
 bp = Blueprint('users', __name__, url_prefix="/users")
@@ -52,3 +52,9 @@ def delete(user_id):
     except Exception as e:
         dbs.rollback()
         return f"Erreur lors de la suppression : {str(e)}", 500
+    
+@bp.route("/badges/<int:user_id>")
+@login_required
+def badges(user_id):
+    user_badges = dbs.execute(db.select(Badge).where(Badge.user_id == user_id)).scalars().all()
+    return str(user_badges)

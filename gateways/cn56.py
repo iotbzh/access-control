@@ -104,6 +104,9 @@ class Reader(BaseReader):
     def start_led(self, color): # green: 0x02 red: 0x01
         return self.send_cmd(self.device_address, 0x24, 0, [color])
 
+    def open_relay(self):
+        return self.send_cmd(self.device_address, 0x29, 0, [0x05])
+
     def get_uid(self, msg):
         return msg[5:-2].hex()
 
@@ -138,6 +141,8 @@ class Gateway(BaseGateway):
     
     @staticmethod
     def action(reader, authorized, badge_uid):
+        if authorized:
+            reader.open_relay()
         reader.start_led([0x01, 0x02][int(authorized)])
         time.sleep(5)
         reader.start_led(0x0)
