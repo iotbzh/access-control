@@ -31,7 +31,7 @@
         <div class="row">
             <label>
                 Default Role:
-                <select name="ldap-default-role" form="settings" required>
+                <select name="ldap-default-role" form="settings">
                     {% for role in roles %}
                         <option value="{{ role.id }}" {% if role.id == settings.ldap_default_role %}selected{% endif %}>{{ role.name }}</option>
                     {% endfor %}
@@ -41,6 +41,34 @@
         <form action="ldap_retrieve" method="post">
             <button {% if not settings.ldap_enabled %}disabled{% endif %} class="btn btn-secondary mt-2">Retrieve</button>
         </form>
+    </div>
+
+    <div class="mt-4">
+        <h3>OpenID</h3>
+        <div class="row">
+            <label>
+                Enabled:
+                <input type="checkbox" name="openid-enabled" {% if settings.openid_enabled %}checked{% endif %} form="settings">
+            </label>
+        </div>
+        <div class="row">
+            <label>
+                Client ID:
+                <input type="text" name="openid-client-id" value="{{settings.openid_client_id}}" form="settings">
+            </label>
+        </div>
+        <div class="row">
+            <label>
+                Client Secret:
+                <input type="text" name="openid-client-secret" value="{{settings.openid_client_secret}}" form="settings">
+            </label>
+        </div>
+        <div class="row">
+            <label>
+                Server Metadata URL:
+                <input type="text" name="openid-metadata-url" placeholder="https://myserver.local/realms/local/.well-known/openid-configuration" value="{{settings.openid_metadata_url}}" form="settings">
+            </label>
+        </div>
     </div>
 </div>
 {% endblock %}

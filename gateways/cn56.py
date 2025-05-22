@@ -112,9 +112,8 @@ class Gateway(BaseGateway):
     uid = "cn56-gateway"
     reader_class = Reader
 
-    configs = [
-        Config("Key", str, "00" * 16), # Make it more secure...
-    ]
+    class Config:
+        key: str = "00" * 16
 
     @staticmethod
     def connect(reader: Reader):

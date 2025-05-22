@@ -19,6 +19,9 @@ def convert_time_to_timedelta(t):
     return timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)
 
 def access_control(gateway, reader_instance, badge_uid):
+    print(reader_instance)
+    print(reader_instance.reader)
+    print(reader_instance.reader.id)
     reader_id = reader_instance.reader.id
     reader = dbs.execute(db.select(Reader).where(Reader.id == reader_id)).scalar_one_or_none()
     print(f"UID reçu : {badge_uid} pour le lecteur : {reader.name}")
@@ -95,6 +98,7 @@ def access_control(gateway, reader_instance, badge_uid):
     #         return
 
     role_reader = dbs.execute(db.select(RoleReader).where(RoleReader.role == user.role)).scalar_one_or_none()
+    # TODO: FIX BIG EXPLOIT
 
     if not role_reader:
         log_access(reader.id, badge_uid, user.name, user.id, "denied", "Zone non autorisée")

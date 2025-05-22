@@ -1,6 +1,7 @@
+# This file is awful, don't worry it will be fixed
+
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, current_app, session
 from flask_mysqldb import MySQL
-from flask_socketio import SocketIO, emit
 # from flask_login import LoginManager, UserMixin, 
 from flask_migrate import Migrate
 import MySQLdb
@@ -9,6 +10,7 @@ import MySQLdb
 import threading
 import time
 import os
+from flask_socketio import SocketIO
 from sqlalchemy import create_engine, func
 from sqlalchemy_utils import database_exists, create_database
 
@@ -16,8 +18,11 @@ from src.models import db, User, Role, Badge, Reader, Log
 from src.auth import login_user, login_required, logout_user, current_user
 from src.settings import Settings
 from src.schedules import init as init_schedules
+from src.smtp import SMTP
 from src.gateways import Gateways
 from src.plugins import Plugins
+import src.socketio as socketio
+import src.openid as openid
 
 from src.controllers.users import bp as users_controller
 from src.controllers.badges import bp as badges_controller
@@ -25,11 +30,16 @@ from src.controllers.readers import bp as readers_controller
 from src.controllers.roles import bp as roles_controller
 from src.controllers.settings import bp as settings_controller
 from src.controllers.gateways import bp as gateways_controller
+from src.controllers.plugins import bp as plugins_controller
+from src.controllers.openid import bp as openid_controller
 
 # --- Flask ---
 app = Flask(__name__)
 app.secret_key = "change_this_to_a_random_and_secret_string"
 app.config["SQLALCHEMY_DATABASE_URI"] = f'mysql://root:root@172.17.0.2/access_control'
+
+openid.app = app
+socketio.sock = SocketIO(app)
 
 app.register_blueprint(users_controller)
 app.register_blueprint(badges_controller)
@@ -37,6 +47,8 @@ app.register_blueprint(readers_controller)
 app.register_blueprint(roles_controller)
 app.register_blueprint(settings_controller)
 app.register_blueprint(gateways_controller)
+app.register_blueprint(openid_controller)
+app.register_blueprint(plugins_controller)
 
 # TODO: Auto create database when not initialized
 db.init_app(app)
@@ -47,6 +59,7 @@ migrate = Migrate(app, db)
 if not os.getenv("FLASK_MIGRATE"):
     with app.app_context():
         Settings.init()
+        SMTP.init()
 
     init_schedules(app)
 
@@ -85,6 +98,10 @@ def login():
             next_url = request.args.get("next", url_for("index"))
             return redirect(next_url)
         flash('Identifiant ou mot de passe incorrect')
+
+    if Settings.get("openid_enabled"):
+        return redirect(url_for("openid.login"))
+
     return render_template('login.html')
 
 @app.route('/logout')
@@ -92,8 +109,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('login'))
-
-socketio = SocketIO(app)
 
 # MQTT_BROKER = "localhost"
 # MQTT_PORT = 1883
@@ -144,9 +159,9 @@ def on_message(client, userdata, msg):
 #    return render_template('zones_socketio.html', lecteurs=lecteurs_status)
 
 # --- SocketIO event: envoyer le statut initial à la connexion ---
-@socketio.on('connect')
-def send_initial_status():
-    emit('all_status', lecteurs_status)
+# @socketio.on('connect')
+# def send_initial_status():
+#     emit('all_status', lecteurs_status)
 
 @app.route('/zones_socketio')
 def zones_socketio():
@@ -224,6 +239,6 @@ if __name__ == '__main__':
         with app.app_context():
             Gateways.init_all(app)
             Plugins.init_all(app)
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    socketio.sock.run(app, host="0.0.0.0", port=5000, debug=True)
 else:
     print("Running with an other Werkzeug server")

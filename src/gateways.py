@@ -5,6 +5,7 @@ import threading
 
 from src.models import db, dbs, Gateway, Reader
 from src.access import access_control
+from src.configs import Configs
 
 class Gateways:
 
@@ -21,7 +22,7 @@ class Gateways:
                 cls.gateways[gateway.uid] = gateway
             
             if not dbs.execute(db.select(Gateway).where(Gateway.uid == gateway.uid)).scalar_one_or_none():
-                default_config = Configs.get_default_config(gateway)
+                default_config = Configs.get_default_config(gateway.Config)
                 dbs.add(Gateway(uid=gateway.uid, name=gateway.name, configs=default_config))
         
         dbs.commit()
@@ -36,6 +37,7 @@ class Gateways:
             reader_class = gateway.reader_class
 
             for reader in readers:
+                dbs.expunge(reader)
                 reader_instance = reader_class(reader, **reader.gateway_configs)
                 gateway.connect(reader_instance)
                 
@@ -44,13 +46,3 @@ class Gateways:
                         access_control(gateway, reader_instance, badge_uid)
 
                 threading.Thread(target=gateway.job, args=(reader_instance, on_badge), daemon=True).start()
-
-class Configs:
-
-    @classmethod
-    def get_default_config(cls, gateway):
-        configs = gateway.configs
-        default = {}
-        for config in configs:
-            default[config.name] = config.default
-        return default

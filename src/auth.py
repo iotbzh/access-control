@@ -2,7 +2,7 @@ from flask import session, redirect, url_for, request
 from functools import wraps
 
 def login_user(user):
-    session["user"] = user["username"]
+    session["user"] = user
 
 def login_required(func):
     def wrap(*args, **kwargs):

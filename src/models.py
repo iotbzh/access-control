@@ -49,11 +49,12 @@ class Badge(db.Model):
     __tablename__ = 'badges'
 
     id = db.Column(db.Integer, primary_key=True)
-    uid = db.Column(db.String(32), unique=True, nullable=False, index=True)
+    uid = db.Column(db.String(64), unique=True, nullable=False, index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-    autorise = db.Column(db.Boolean, default=True)
     deactivation_date = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, default=True)
+    guest_name = db.Column(db.String(64))
+    company_name = db.Column(db.String(64))
 
 
 class Log(db.Model):
@@ -85,9 +86,15 @@ class Setting(db.Model):
     __tablename__ = 'settings'
 
     id = db.Column(db.Integer, primary_key=True)
+
     ldap_enabled = db.Column(db.Boolean, default=False)
     ldap_server = db.Column(db.String(255))
     ldap_default_role = db.Column(db.Integer, default=0)
+
+    openid_enabled = db.Column(db.Boolean, default=False)
+    openid_client_id = db.Column(db.String(255))
+    openid_client_secret = db.Column(db.String(255))
+    openid_metadata_url = db.Column(db.String(255))
 
 class Gateway(db.Model):
     __tablename__ = "gateways"
@@ -95,4 +102,11 @@ class Gateway(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.String(64), nullable=False)
     name = db.Column(db.String(64), nullable=False)
+    configs = db.Column(db.JSON)
+
+class Plugin(db.Model):
+    __tablename__ = "plugins"
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(64), nullable=False)
     configs = db.Column(db.JSON)

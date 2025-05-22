@@ -37,8 +37,17 @@ def add():
         user_id = request.form['user_id']
         is_active = 1 if request.form.get('is_active') == 'on' else 0
         deactivation_date = request.form['deactivation_date'] or None
+        guest_name = request.form['guest_name']
+        company_name = request.form['company_name']
 
-        db.session.add(Badge(uid=uid, user_id=user_id, is_active=is_active, deactivation_date=deactivation_date))
+        db.session.add(Badge(
+            uid=uid, 
+            user_id=user_id, 
+            is_active=is_active, 
+            deactivation_date=deactivation_date,
+            guest_name=guest_name,
+            company_name=company_name
+        ))
 
         try:
             db.session.commit()

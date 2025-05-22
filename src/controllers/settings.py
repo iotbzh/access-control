@@ -16,10 +16,20 @@ def index():
         ldap_server = request.form.get("ldap-server")
         ldap_default_role = request.form.get("ldap-default-role")
 
+        openid_enabled = bool(request.form.get("openid-enabled"))
+        openid_client_id = request.form.get("openid-client-id")
+        openid_client_secret = request.form.get("openid-client-secret")
+        openid_metadata_url = request.form.get("openid-metadata-url")
+
         dbs.execute(db.update(Setting).values(
             ldap_enabled = ldap_enabled,
             ldap_server = ldap_server,
-            ldap_default_role = ldap_default_role
+            ldap_default_role = ldap_default_role,
+
+            openid_enabled = openid_enabled,
+            openid_client_id = openid_client_id,
+            openid_client_secret = openid_client_secret,
+            openid_metadata_url = openid_metadata_url,
         ))
         dbs.commit()
 
