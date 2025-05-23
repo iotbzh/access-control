@@ -19,20 +19,20 @@
         </tr>
     </thead>
     <tbody>
-        {% for config in gateway_interface.configs %}
+        {% for config in gateway_annotations %}
         <tr>
-            <td>{{ config.name }}</td>
+            <td>{{ config }}</td>
             <td>
-                <input name="{{config.name}}"  form="configs"
-                    {% if config.type.__name__ == "str" %}
+                <input name="{{config}}"  form="configs"
+                    {% if gateway_annotations[config].__name__ == "str" %}
                         type="text"
-                        value="{{ gateway.configs.get(config.name) }}"
-                    {% elif config.type.__name__ == "int" %}
+                        value="{{ gateway.configs.get(config) }}"
+                    {% elif gateway_annotations[config].__name__ == "int" %}
                         type="number"
-                        value="{{ gateway.configs.get(config.name) }}"
-                    {% elif config.type.__name__ == "bool" %}
+                        value="{{ gateway.configs.get(config) }}"
+                    {% elif gateway_annotations[config].__name__ == "bool" %}
                         type="checkbox"
-                        {% if gateway.configs.get(config.name) %}checked{% endif %}
+                        {% if gateway.configs.get(config) %}checked{% endif %}
                     {% else %}
                         type="text"
                     {% endif %}
@@ -48,7 +48,7 @@
     <thead>
         <tr>
             <th>UID</th>
-            <th>Nom</th>
+            <th>Name</th>
             <th>Active</th>
         </tr>
     </thead>
@@ -60,7 +60,7 @@
             <td>
                 <span class="badge bg-{{ 'success' if reader['is_active'] else 'danger' }}">
                     <i class="bi bi-{{ 'check-circle-fill' if reader['is_active'] else 'x-circle-fill' }}"></i>
-                    {{ 'Actif' if reader['is_active'] else 'Inactif' }}
+                    {{ 'Active' if reader['is_active'] else 'Inactive' }}
                 </span>
             </td>
         </tr>

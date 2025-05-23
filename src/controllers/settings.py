@@ -1,14 +1,14 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 
 from src.models import db, dbs, Setting
-from src.auth import login_user, login_required, logout_user, current_user
+from src.auth import login_user, admin_required, logout_user, current_user
 from src.settings import Settings
 from src.ldap import ldap_retrieve_users
 
 bp = Blueprint('settings', __name__, url_prefix="/settings")
 
 @bp.route('/', methods=["GET", "POST"])
-@login_required
+@admin_required
 def index():
 
     if request.method == "POST":
@@ -37,7 +37,7 @@ def index():
     return render_template('settings/index.html', settings=settings)
 
 @bp.route("/ldap_retrieve", methods=["POST"])
-@login_required
+@admin_required
 def ldap_retrieve():
     ldap_enabled = Settings.get("ldap_enabled")
 

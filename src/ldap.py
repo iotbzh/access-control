@@ -17,3 +17,9 @@ def ldap_retrieve_users(server):
             dbs.add(User(uid=user["uid"], name=user["name"], email=user["email"]))
     
     dbs.commit()
+
+def ldap_is_admin(server, email):
+    l = ldap.initialize(server)
+    l.simple_bind_s("","")
+    res = l.search_s("ou=people, dc=lorient, dc=iot", ldap.SCOPE_SUBTREE, f"(&(memberof=cn=badgeadmin,ou=groups,dc=lorient,dc=iot)(mail={email}))", attrlist=["uid"])
+    return len(res) > 0

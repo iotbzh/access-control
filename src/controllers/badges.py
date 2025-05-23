@@ -1,12 +1,14 @@
 from flask import Blueprint, redirect, render_template, request, url_for
+from random import randbytes
+from datetime import datetime
 
 from src.models import db, dbs, Badge, User, Role
-from src.auth import login_user, login_required, logout_user, current_user
+from src.auth import login_user, admin_required, logout_user, current_user
 
 bp = Blueprint('badges', __name__, url_prefix="/badges")
 
 @bp.route('/')
-@login_required
+@admin_required
 def index():
     user_id = request.args.get('user_id', type=int)
     is_active = request.args.get('is_active')  # "1", "0" ou None
@@ -30,7 +32,7 @@ def index():
 
 
 @bp.route('/add', methods=['GET', 'POST'])
-@login_required
+@admin_required
 def add():
     if request.method == 'POST':
         uid = request.form['uid']
@@ -40,6 +42,9 @@ def add():
         guest_name = request.form['guest_name']
         company_name = request.form['company_name']
         role = request.form["role"]
+
+        if deactivation_date:
+            deactivation_date = datetime.strptime(deactivation_date, '%Y-%m-%d')
 
         db.session.add(Badge(
             uid=uid, 
@@ -61,21 +66,29 @@ def add():
         
         return redirect(url_for('badges.index'))
     else:
+        uid = randbytes(16).hex()
         users = User.query.all()
         roles = Role.query.all()
-        return render_template('badges/add.html', users=users, roles=roles)
+        return render_template('badges/add.html', users=users, roles=roles, uid=uid)
 
 @bp.route('/edit/<int:badge_id>', methods=['GET', 'POST'])
-@login_required
+@admin_required
 def edit(badge_id):
     if request.method == 'POST':
         uid = request.form['uid']
         user_id = request.form['user_id']
         is_active = 1 if request.form.get('is_active') == 'on' else 0
         deactivation_date = request.form['deactivation_date'] or None
+        guest_name = request.form['guest_name'] or None
+        company_name = request.form['company_name'] or None
         role = request.form["role"]
         
-        dbs.execute(db.update(Badge).where(Badge.id == badge_id).values(uid=uid, user_id=user_id, is_active=is_active, deactivation_date=deactivation_date, role=role))
+        if deactivation_date:
+            deactivation_date = datetime.strptime(deactivation_date, '%Y-%m-%d')
+
+        print(deactivation_date, type(deactivation_date))
+        
+        dbs.execute(db.update(Badge).where(Badge.id == badge_id).values(uid=uid, user_id=user_id, is_active=is_active, deactivation_date=deactivation_date, role=role, guest_name=guest_name, company_name=company_name))
         dbs.commit()
 
         return redirect(url_for('badges.index'))
@@ -86,7 +99,7 @@ def edit(badge_id):
         return render_template('badges/edit.html', badge=badge, users=users, roles=roles)
 
 @bp.route('/delete/<int:badge_id>', methods=['POST'])
-@login_required
+@admin_required
 def delete(badge_id):
     try:
         dbs.execute(db.delete(Badge).where(Badge.id == badge_id))

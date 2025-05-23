@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h2>Badges of {{user.name}}</h2>
+
+    <div class="col-12">
+        <a href="{{ url_for('users.index') }}" class="btn btn-secondary">Retour à la liste</a>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>UID</th>
+                <th>User</th>
+                <th>Active</th>
+                <th>Desactivatin Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for badge in badges %}
+            <tr>
+                <td>{{ badge['id'] }}</td>
+                <td>{{ badge['uid'] }}</td>
+                <td>{{ badge['user_id'] or 'Aucun' }}</td>
+                <td>
+                    <span class="badge bg-{{ 'success' if badge['is_active'] else 'danger' }}">
+                        {{ 'Yes' if badge['is_active'] else 'No' }}
+                    </span>
+                </td>
+                <td>{{ badge['deactivation_date'] or '-' }}</td>
+                <td>
+                    <a href="{{ url_for('badges.edit', badge_id=badge['id']) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form method="POST" action="{{ url_for('badges.delete', badge_id=badge['id']) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this badge ?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

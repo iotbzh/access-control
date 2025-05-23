@@ -1,34 +1,56 @@
 from flask import Blueprint, redirect, render_template, request, url_for
+from datetime import datetime
 
 from src.models import db, dbs, Role, Reader, RoleReader
-from src.auth import login_user, login_required, logout_user, current_user
+from src.auth import login_user, admin_required, logout_user, current_user
 
 bp = Blueprint('roles', __name__, url_prefix="/roles")
 
 @bp.route('/')
-@login_required
+@admin_required
 def index():
     roles = Role.query.all()
     return render_template('roles/index.html', roles=roles)
 
 @bp.route('/add', methods=['GET', 'POST'])
-@login_required
+@admin_required
 def add():
     if request.method == 'POST':
         name = request.form['name'].strip()
+        access_start = request.form['access_start'] or None
+        access_end = request.form['access_end'] or None
+        access_days = "".join(request.form.getlist("access_days"))
+
+        if access_start:
+            access_start = datetime.strptime(access_start, '%H:%M').time()
+        if access_end:
+            access_end = datetime.strptime(access_end, '%H:%M').time()
+
         if name:
-            db.session.add(Role(name=name))
+            db.session.add(Role(name=name, access_start=access_start, access_end=access_end, access_days=access_days))
             db.session.commit()
         return redirect(url_for('roles.index'))
     return render_template('roles/add.html')
 
 @bp.route('/edit/<int:role_id>', methods=['GET', 'POST'])
-@login_required
+@admin_required
 def edit(role_id):
     if request.method == 'POST':
         name = request.form['name']
+        access_start = request.form['access_start'] or None
+        access_end = request.form['access_end'] or None
+        access_days = "".join(request.form.getlist("access_days"))
 
-        dbs.execute(db.update(Role).where(Role.id == role_id).values(name=name))
+        if access_start:
+            access_start = datetime.strptime(
+                access_start[:-3] if len(access_start.split(":")) > 2 else access_start, 
+            '%H:%M').time()
+        if access_end:
+            access_end = datetime.strptime(
+                access_end[:-3] if len(access_end.split(":")) > 2 else access_end, 
+            '%H:%M').time()
+
+        dbs.execute(db.update(Role).where(Role.id == role_id).values(name=name, access_start=access_start, access_end=access_end, access_days=access_days))
         dbs.commit()
         return redirect(url_for('roles.index'))
     else:
@@ -36,7 +58,7 @@ def edit(role_id):
         return render_template('roles/edit.html', role=role)
 
 @bp.route('/delete/<int:role_id>', methods=['POST'])
-@login_required
+@admin_required
 def delete(role_id):
     try:
         dbs.execute(db.delete(Role).where(Role.id == role_id))
@@ -47,7 +69,7 @@ def delete(role_id):
         return f"Erreur lors de la suppression : {str(e)}", 500
 
 @bp.route('/readers/<string:role>', methods=['GET', 'POST'])
-@login_required
+@admin_required
 def readers(role):
     if request.method == 'POST':
         dbs.execute(db.delete(RoleReader).where(RoleReader.role == role))

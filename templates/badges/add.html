@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container py-4">
-    <h1 class="mb-4">Ajouter un badge</h1>
+    <h1 class="mb-4">Add badge</h1>
 
     {% if error %}
         <div class="alert alert-danger fw-bold">{{ error }}</div>
@@ -10,14 +10,13 @@
 
     <form method="post" class="row g-3">
         <div class="col-md-6">
-            <label for="uid" class="form-label">UID du badge :</label>
-            <input type="text" class="form-control" id="uid" name="uid" value="{{ uid|default('') }}" required>
+            <label for="uid" class="form-label">UID :</label>
+            <input type="text" class="form-control" id="uid" name="uid" value="{{ uid|default('') }}" readonly>
         </div>
 
         <div class="col-md-6">
-            <label for="user_id" class="form-label">Associer à l'utilisateur :</label>
+            <label for="user_id" class="form-label">User :</label>
             <select class="form-select" id="user_id" name="user_id" required>
-                <option value="">-- Sélectionner un utilisateur --</option>
                 {% for user in users %}
                     <option value="{{ user.id }}" {% if user_id|default('') == user.id|string %}selected{% endif %}>{{ user.name }}</option>
                 {% endfor %}
@@ -25,7 +24,7 @@
         </div>
 
         <div class="col-md-6">
-            <label for="role" class="form-label">Rôle :</label>
+            <label for="role" class="form-label">Role :</label>
             <select class="form-select" id="role" name="role" required>
                 {% for role in roles %}
                     <option value="{{ role.id }}">{{ role.name }}</option>
@@ -36,12 +35,12 @@
         <div class="col-md-4 d-flex align-items-end">
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="is_active" name="is_active" {% if is_active|default(1) %}checked{% endif %}>
-                <label class="form-check-label" for="is_active">Badge actif</label>
+                <label class="form-check-label" for="is_active">Activate</label>
             </div>
         </div>
 
         <div class="col-md-4">
-            <label for="deactivation_date" class="form-label">Date de désactivation (optionnelle):</label>
+            <label for="deactivation_date" class="form-label">Deactivation date (optional):</label>
             <input type="date" class="form-control" id="deactivation_date" name="deactivation_date" value="{{ deactivation_date|default('') }}">
         </div>
 
@@ -56,8 +55,8 @@
         </div>
 
         <div class="col-12">
-            <button type="submit" class="btn btn-success">Ajouter</button>
-            <a href="{{ url_for('badges.index') }}" class="btn btn-secondary ms-2">Retour à la liste des badges</a>
+            <button type="submit" class="btn btn-success">Add</button>
+            <a href="{{ url_for('badges.index') }}" class="btn btn-secondary ms-2">Back</a>
         </div>
     </form>
 </div>

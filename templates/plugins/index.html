@@ -21,7 +21,7 @@
                 <a href="{{ url_for('plugins.view', plugin_uid=plugin["uid"]) }}" class="btn btn-sm btn-warning" title="Modifier">
                     <i class="bi bi-pencil-fill"></i>
                 </a>
-                <a href="{{ url_for(plugin['uid'] + '.index') }}" class="btn btn-sm btn-secondary" title="Modifier">
+                <a href="{{ safe_url_for(plugin['uid'] + '.index') }}" class="btn btn-sm btn-secondary" title="Modifier">
                     <i class="bi bi-eye"></i>
                 </a>
             </td>

@@ -1,6 +1,6 @@
 import sys
 from datetime import datetime, timedelta
-from src.models import db, dbs, Reader, Badge, User, RoleReader, Log
+from src.models import db, dbs, Reader, Badge, User, RoleReader, Log, Role
 
 def log_access(reader_id, badge_uid, user_name, user_id, result, reason):
     try:
@@ -27,84 +27,89 @@ def access_control(gateway, reader_instance, badge_uid):
     print(f"UID reçu : {badge_uid} pour le lecteur : {reader.name}")
 
     if not reader.is_active:
-        log_access(reader.id, badge_uid, None, None, "denied", "Lecteur désactivé")
-        print("Accès refusé. Lecteur désactivé.")
-        gateway.action(reader_instance, False, badge_uid)
+        log_access(reader.id, badge_uid, None, None, "denied", "Inactive Reader")
+        print("Access refused. Inactive Reader.")
+        gateway.event(reader_instance, False, badge_uid)
         return
 
     badge = dbs.execute(db.select(Badge).where(Badge.uid == badge_uid)).scalar_one_or_none()
 
     if not badge:
-        log_access(reader.id, badge_uid, None, None, "denied", "Badge invalide")
-        print("Accès refusé. Badge invalide.")
-        gateway.action(reader_instance, False, badge_uid)
+        log_access(reader.id, badge_uid, None, None, "denied", "Invalid Badge")
+        print("Access refused. Invalid Badge.")
+        gateway.event(reader_instance, False, badge_uid)
         return
     
     user = dbs.execute(db.select(User).where(User.id == badge.user_id)).scalar_one_or_none()
 
     if not user:
-        log_access(reader.id, badge_uid, None, badge.user_id, "denied", "Badge non assigné")
-        print("Accès refusé. Badge non assigné.")
-        gateway.action(reader_instance, False, badge_uid)
+        log_access(reader.id, badge_uid, None, badge.user_id, "denied", "Badge not assigned")
+        print("Access refused. Badge not assigned.")
+        gateway.event(reader_instance, False, badge_uid)
         return
 
     now = datetime.now()
     now_time = timedelta(hours=now.hour, minutes=now.minute, seconds=now.second)
 
     # DEBUG : Affiche le badge récupéré
-    print("Badge récupéré :", badge.uid)
-    print("Rôle de l'utilisateur :", badge.role)
+    # print("Badge récupéré :", badge.uid)
+    # print("Rôle de l'utilisateur :", badge.role)
 
     if not badge.is_active:
-        log_access(reader.id, badge_uid, user.name, user.id, "denied", "Badge désactivé")
-        print("Accès refusé. Badge désactivé.")
-        gateway.action(reader_instance, False, badge_uid)
+        log_access(reader.id, badge_uid, user.name, user.id, "denied", "Inactive Badge")
+        print("Access refused. Inactive Badge.")
+        gateway.event(reader_instance, False, badge_uid)
         return
     elif badge.deactivation_date and badge.deactivation_date < now:
-        log_access(reader.id, badge_uid, user.name, user.id, "denied", "Badge expiré")
-        print("Accès refusé. Badge expiré.")
-        gateway.action(reader_instance, False, badge_uid)
+        log_access(reader.id, badge_uid, user.name, user.id, "denied", "Expired badge")
+        print("Access refused. Expired badge.")
+        gateway.event(reader_instance, False, badge_uid)
         return
     elif not user.is_active:
-        log_access(reader.id, badge_uid, user.name, user.id, "denied", "Utilisateur désactivé")
-        print("Accès refusé. Utilisateur désactivé.")
-        gateway.action(reader_instance, False, badge_uid)
+        log_access(reader.id, badge_uid, user.name, user.id, "denied", "Inactive user")
+        print("Access refused. Inactive user.")
+        gateway.event(reader_instance, False, badge_uid)
         return
 
-    # -------
-    # A faire, mettre les horraire sur le role et pas le user/badge
-    # ------- 
-    # access_start = convert_time_to_timedelta(badge['access_start'])
-    # access_end = convert_time_to_timedelta(badge['access_end'])
-    # access_granted = True
+    role = dbs.execute(db.select(Role).where(Role.id == badge.role)).scalar_one_or_none()
+    access_start = convert_time_to_timedelta(role.access_start)
+    access_end = convert_time_to_timedelta(role.access_end)
+    weekday = datetime.now().weekday()
 
-    # if access_start is not None and access_end is not None:
-    #     if not (access_start <= now_time <= access_end):
-    #         log_access(uid, badge['badge_id'], badge['user_id'], user_name, zone_id, "denied", "Hors plage horaire")
-    #         print("Accès refusé. Hors plage horaire.")
-    #         client.publish(MQTT_TOPIC_LED, "NO")
-    #         return
-    # elif access_start is not None:
-    #     if now_time < access_start:
-    #         log_access(uid, badge['badge_id'], badge['user_id'], user_name, zone_id, "denied", "Accès pas encore ouvert")
-    #         print("Accès refusé. Accès pas encore ouvert.")
-    #         client.publish(MQTT_TOPIC_LED, "NO")
-    #         return
-    # elif access_end is not None:
-    #     if now_time > access_end:
-    #         log_access(uid, badge['badge_id'], badge['user_id'], user_name, zone_id, "denied", "Accès terminé")
-    #         print("Accès refusé. Accès terminé.")
-    #         client.publish(MQTT_TOPIC_LED, "NO")
-    #         return
+    if str(weekday) not in role.access_days:
+        log_access(reader.id, badge_uid, user.name, user.id, "denied", "Out of access days")
+        print("Access refused. Out of access days.")
+        gateway.event(reader_instance, False, badge_uid)
+        return
 
-    role_reader = dbs.execute(db.select(RoleReader).where(RoleReader.role == badge.role and RoleReader.reader_id == reader_id)).scalar_one_or_none()
+    if access_start is not None and access_end is not None:
+        if not (access_start <= now_time <= access_end):
+            log_access(reader.id, badge_uid, user.name, user.id, "denied", "Out of access time")
+            print("Access refused. Out of access time.")
+            gateway.event(reader_instance, False, badge_uid)
+            return
+    elif access_start is not None:
+        if now_time < access_start:
+            log_access(reader.id, badge_uid, user.name, user.id, "denied", "Out of access time")
+            print("Access refused. Out of access time.")
+            gateway.event(reader_instance, False, badge_uid)
+            return
+    elif access_end is not None:
+        if now_time > access_end:
+            log_access(reader.id, badge_uid, user.name, user.id, "denied", "Out of access time")
+            print("Access refused. Out of access time.")
+            gateway.event(reader_instance, False, badge_uid)
+            return
+
+    print(dbs.execute(db.select(RoleReader).where(RoleReader.role == badge.role).where(RoleReader.reader_id == reader_id)).scalars().all())
+    role_reader = dbs.execute(db.select(RoleReader).where(RoleReader.role == badge.role).where(RoleReader.reader_id == reader_id)).scalar_one_or_none()
 
     if not role_reader:
-        log_access(reader.id, badge_uid, user.name, user.id, "denied", "Zone non autorisée")
-        print("Accès refusé. Zone non autorisée.")
-        gateway.action(reader_instance, False, badge_uid)
+        log_access(reader.id, badge_uid, user.name, user.id, "denied", "Unauthorized access")
+        print("Access refused. Unauthorized access.")
+        gateway.event(reader_instance, False, badge_uid)
         return
 
     log_access(reader.id, badge_uid, user.name, user.id, "authorized", "OK")
-    print("Accès autorisé, ouverture...")
-    gateway.action(reader_instance, True, badge_uid)
+    print("Authorized...")
+    gateway.event(reader_instance, True, badge_uid)

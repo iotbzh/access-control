@@ -1,0 +1,13 @@
+alembic==1.15.2
+authlib==1.5.2
+Flask==3.1.1
+Flask_Migrate==4.1.0
+Flask_MySQLdb==2.0.0
+Flask_SocketIO==5.5.1
+flask_sqlalchemy==3.1.1
+MySQL-python==1.2.5
+Requests==2.32.3
+schedule==1.2.2
+SQLAlchemy==2.0.41
+SQLAlchemy_Utils==0.41.2
+urllib3==2.4.0

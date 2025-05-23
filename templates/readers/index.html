@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Gestion des lecteurs de porte</h1>
+<h1>Readers list</h1>
 <a href="{{ url_for('readers.add') }}" class="btn btn-primary mb-3">
-    <i class="bi bi-door-open"></i> Ajouter un lecteur
+    <i class="bi bi-door-open"></i> Add reader
 </a>
 
 <table class="table table-striped align-middle">
     <thead>
         <tr>
-            <th>Nom</th>
+            <th>Name</th>
             <th>Description</th>
-            <th>Statut</th>
-            <th>État</th>
+            <th>Status</th>
+            <th>State</th>
             <th>Gateway</th>
             <th>Actions</th>
         </tr>
@@ -25,35 +25,26 @@
             <td>
                 <span class="badge bg-{{ 'success' if reader['is_active'] else 'danger' }}">
                     <i class="bi bi-{{ 'check-circle-fill' if reader['is_active'] else 'x-circle-fill' }}"></i>
-                    {{ 'Actif' if reader['is_active'] else 'Inactif' }}
+                    {{ 'Active' if reader['is_active'] else 'Inactive' }}
                 </span>
             </td>
             <td>
-                <span class="badge bg-{{ 'success' if status[loop.index] == 'online' else 'secondary' }}">
-                    <i class="bi bi-{{ 'wifi' if status[loop.index] == 'online' else 'wifi-off' }}"></i>
-                    {{ 'Online' if status[loop.index] == 'online' else 'Offline' }}
+                {% set is_online = readers_instance.get(reader.id).is_online if readers_instance.get(reader.id) else False %}
+                <span class="badge bg-{{ 'success' if is_online else 'secondary' }}">
+                    <i class="bi bi-{{ 'wifi' if is_online else 'wifi-off' }}"></i>
+                    {{ 'Online' if is_online else 'Offline' }}
                 </span>
             </td>
             <td>
                 {{ reader["gateway"] }}
             </td>
             <td class="d-flex gap-1">
-                <!-- Bouton Ouvrir -->
-                <!-- <form method="post" action="{ url_for('readers.open', reader_name=reader['name']) }">
-                    <button type="submit" class="btn btn-sm btn-outline-primary"
-                        title="Ouvrir la porte"
-                        onclick="return confirm(`Ouvrir la porte {{ reader['name'] }} ?`);">
-                        <i class="bi bi-door-open-fill"></i>
-                    </button>
-                </form> -->
-                <!-- Modifier -->
-                <a href="{{ url_for('readers.edit', reader_id=reader['id']) }}" class="btn btn-sm btn-warning" title="Modifier">
+                <a href="{{ url_for('readers.edit', reader_id=reader['id']) }}" class="btn btn-sm btn-warning" title="Edit">
                     <i class="bi bi-pencil-fill"></i>
                 </a>
-                <!-- Supprimer -->
                 <form method="POST" action="{{ url_for('readers.delete', reader_id=reader['id']) }}" style="display:inline;">
                     <button type="submit" class="btn btn-sm btn-danger"
-                            onclick="return confirm('Supprimer ce lecteur ?')" title="Supprimer">
+                            onclick="return confirm('Delete this reader ?')" title="Delete">
                         <i class="bi bi-trash-fill"></i>
                     </button>
                 </form>

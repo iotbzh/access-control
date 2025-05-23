@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container py-4">
-    <h1 class="mb-4">Gestion des accès pour le rôle <span class="text-primary">{{ role }}</span></h1>
+    <h1 class="mb-4">Edit role access</h1>
 
     <form method="post">
         <div class="mb-3">
@@ -20,8 +20,8 @@
             </div>
             {% endfor %}
         </div>
-        <button type="submit" class="btn btn-success">Enregistrer</button>
-        <a href="{{ url_for('roles.index') }}" class="btn btn-secondary ms-2">Annuler</a>
+        <button type="submit" class="btn btn-success">Save</button>
+        <a href="{{ url_for('roles.index') }}" class="btn btn-secondary ms-2">Back</a>
     </form>
 </div>
 {% endblock %}

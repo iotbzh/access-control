@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Modifier le lecteur {{ reader.name }}</h1>
+<h1>Edit reader {{ reader.name }}</h1>
 <form method="post">
     <div class="mb-3">
-        <label class="form-label">Nom technique</label>
+        <label class="form-label">Name</label>
         <input type="text" name="name" class="form-control" value="{{ reader.name }}" required>
     </div>
     
@@ -15,14 +15,14 @@
     
     <div class="mb-3 form-check">
         <input type="checkbox" name="is_active" class="form-check-input" {{ 'checked' if reader.is_active }}>
-        <label class="form-check-label">Activer ce lecteur</label>
+        <label class="form-check-label">Activate</label>
     </div>
 
     <div class="col-md-6 mb-3">
         <label for="gateway" class="form-label">Gateway :</label>
         <select class="form-select" id="gateway" name="gateway" required>
             {% for gateway in gateways %}
-                <option value="{{ gateway.uid }}" {% if gateway.id == reader.gateway %}selected{% endif %}>{{ gateway.name }}</option>
+                <option value="{{ gateway.uid }}" {% if gateway.uid == reader.gateway %}selected{% endif %}>{{ gateway.name }}</option>
             {% endfor %}
         </select>
     </div>
@@ -31,27 +31,27 @@
     <h3>Gateway reader config:</h3>
 
     
-    {% for config in reader_interface %}
+    {% for config in reader_annotations %}
         <div class="mb-3">
             <label class="form-label">{{config}}</label>
-            <input name="gateway-{{config}}" class="form-control"
-                    {% if reader_interface[config].__name__ == "str" %}
-                        type="text"
+            <input name="gateway-{{config}}" 
+                    {% if reader_annotations[config].__name__ == "str" %}
+                        class="form-control" type="text"
                         value="{{ reader.gateway_configs.get(config) }}"
-                    {% elif reader_interface[config].__name__ == "int" %}
-                        type="number"
+                    {% elif reader_annotations[config].__name__ == "int" %}
+                        class="form-control" type="number"
                         value="{{ reader.gateway_configs.get(config) }}"
-                    {% elif reader_interface[config].__name__ == "bool" %}
+                    {% elif reader_annotations[config].__name__ == "bool" %}
                         type="checkbox"
                         {% if reader.gateway_configs.get(config) %}checked{% endif %}
                     {% else %}
-                        type="text"
+                        type="undefined"
                     {% endif %}
                 />
         </div>
     {% endfor %}
     
-    <button type="submit" class="btn btn-primary">Enregistrer</button>
-    <a href="{{ url_for('readers.index') }}" class="btn btn-secondary">Annuler</a>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a href="{{ url_for('readers.index') }}" class="btn btn-secondary">Back</a>
 </form>
 {% endblock %}

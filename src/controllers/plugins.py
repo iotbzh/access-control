@@ -1,19 +1,19 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 
 from src.models import db, dbs, Plugin, Reader
-from src.auth import login_required
+from src.auth import admin_required
 from src.plugins import Plugins
 
 bp = Blueprint('plugins', __name__, url_prefix="/plugins")
 
 @bp.route('/')
-@login_required
+@admin_required
 def index():
     plugins = Plugins.get_all_plugins()
     return render_template('plugins/index.html', plugins=plugins.values())
 
 @bp.route('/<plugin_uid>', methods=["GET", "POST"])
-@login_required
+@admin_required
 def view(plugin_uid):
 
     if request.method == "POST":

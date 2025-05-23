@@ -1,7 +1,17 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, time
+from sqlalchemy import MetaData
 
-db = SQLAlchemy()
+convention = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
+metadata = MetaData(naming_convention=convention)
+db = SQLAlchemy(metadata=metadata)
+
 dbs = db.session
 
 class Reader(db.Model):
@@ -22,6 +32,9 @@ class Role(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True)
+    access_start = db.Column(db.Time)
+    access_end = db.Column(db.Time)
+    access_days = db.Column(db.String(7), default="")
 
 
 class User(db.Model):
@@ -56,7 +69,7 @@ class Log(db.Model):
     reader_id = db.Column(db.Integer, db.ForeignKey('readers.id'))
     badge_uid = db.Column(db.String(32))
     user_name = db.Column(db.String(100))
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     result = db.Column(db.String(16))
     reason = db.Column(db.String(255))
 

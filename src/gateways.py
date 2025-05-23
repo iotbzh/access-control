@@ -2,6 +2,8 @@ import importlib
 import glob
 import os
 import threading
+import time
+from flask import current_app, Flask
 
 from src.models import db, dbs, Gateway, Reader
 from src.access import access_control
@@ -11,11 +13,14 @@ class Gateways:
 
     gateways_folder = "gateways"
     gateways = {}
+    app: Flask = None
 
     @classmethod
     def get_all_gateways(cls):
-        for module_file in glob.glob(f"{cls.gateways_folder}/*.py"):
-            module_name = os.path.basename(module_file)[:-3]
+        for module_folder in glob.glob(f"{cls.gateways_folder}/*"):
+            if not os.path.isdir(module_folder) or "__" in module_folder:
+                continue
+            module_name = os.path.basename(module_folder)
             gateway = importlib.import_module(f"{cls.gateways_folder}.{module_name}").Gateway
 
             if gateway.uid not in cls.gateways:
@@ -34,15 +39,48 @@ class Gateways:
         for gateway_uid in Gateways.get_all_gateways():
             readers = dbs.execute(db.select(Reader).where(Reader.gateway == gateway_uid)).scalars().all()
             gateway = cls.gateways.get(gateway_uid)
-            reader_class = gateway.reader_class
+            print(readers)
 
             for reader in readers:
+                print(reader)
                 dbs.expunge(reader)
-                reader_instance = reader_class(reader, **reader.gateway_configs)
-                gateway.connect(reader_instance)
-                
-                def on_badge(badge_uid):
-                    with app.app_context():
-                        access_control(gateway, reader_instance, badge_uid)
+                cls.init_reader(app, gateway, reader)
+                # threading.Thread(target=cls.init_reader, args=(app, gateway, reader,), daemon=True).start()
+            
+            print(f" + {gateway_uid} gateway loaded !")
 
-                threading.Thread(target=gateway.job, args=(reader_instance, on_badge), daemon=True).start()
+    @classmethod
+    def init_reader(cls, app, gateway, reader):
+        with app.app_context():
+            if gateway.readers.get(reader.id):
+                gateway.disconnect(gateway.readers.get(reader.id))
+                del gateway.readers[reader.id]
+            
+            if not reader.is_active:
+                return
+            
+            reader_instance = gateway.reader_class(reader, **reader.gateway_configs)
+            gateway.readers[reader.id] = reader_instance
+            success = gateway.connect(reader_instance)
+
+            if not success:
+                return
+
+            def reader_context(gateway, reader_instance):
+                def decorator(func):
+                    def wrapper(*args, **kwargs):
+                        return func(gateway, reader_instance, *args, **kwargs)
+                    return wrapper
+                return decorator
+            
+            @reader_context(gateway, reader_instance)
+            def on_badge(gateway, reader_instance, badge_uid):
+                print("2", reader_instance.reader.id)
+                with Gateways.app.app_context():
+                    access_control(gateway, reader_instance, badge_uid)
+
+            threading.Thread(target=gateway.job, args=(reader_instance, on_badge), daemon=True).start()
+
+    @classmethod
+    def get(cls, gateway_uid):
+        return cls.gateways.get(gateway_uid)

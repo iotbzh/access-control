@@ -1,8 +1,9 @@
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, redirect, render_template, request, url_for, flash, current_app
 
 from src.models import db, dbs, Badge, User, Reader, Gateway
-from src.auth import login_user, login_required, logout_user, current_user
+from src.auth import login_user, admin_required, logout_user, current_user
 from src.gateways import Gateways
+from src.lib.gateway import BaseGateway
 
 bp = Blueprint('readers', __name__, url_prefix="/readers")
 
@@ -10,16 +11,13 @@ def get_reader_status(zone_name):
     return "online"
 
 @bp.route('/')
-@login_required
+@admin_required
 def index():
     readers = Reader.query.all()
-    status = []
-    for reader in readers:
-        status.append(get_reader_status(reader.id))
-    return render_template('readers/index.html', readers=readers, status=status)
+    return render_template('readers/index.html', readers=readers, readers_instance=BaseGateway.readers)
 
 @bp.route('/add', methods=['GET', 'POST'])
-@login_required
+@admin_required
 def add():
     if request.method == 'POST':
         name = request.form['name'].strip()
@@ -35,18 +33,23 @@ def add():
             gateway_configs[config] = getattr(gateway_interface.reader_class, config, None)
 
         try:
-            db.session.add(Reader(name=name, description=description, is_active=is_active, gateway=gateway, gateway_configs=gateway_configs))
-            db.session.commit()
+            reader = Reader(name=name, description=description, is_active=is_active, gateway=gateway, gateway_configs=gateway_configs)
+            dbs.add(reader)
+            dbs.commit()
+
+            gateway_interface = Gateways.gateways.get(gateway)
+            Gateways.init_reader(current_app, gateway_interface, reader)
+            
             return redirect(url_for('readers.index'))
         except Exception as err:
-            db.session.rollback()
+            dbs.rollback()
             flash(f"Erreur : {err}", 'danger')
 
     gateways = Gateway.query.all()
     return render_template('readers/add.html', gateways=gateways)
 
 @bp.route('/edit/<int:reader_id>', methods=['GET', 'POST'])
-@login_required
+@admin_required
 def edit(reader_id):    
     if request.method == 'POST':
         name = request.form['name'].strip()
@@ -63,17 +66,23 @@ def edit(reader_id):
 
         dbs.execute(db.update(Reader).where(Reader.id == reader_id).values(name=name, description=description, is_active=is_active, gateway=gateway, gateway_configs=gateway_configs))
         dbs.commit()
+
+        reader = dbs.execute(db.select(Reader).where(Reader.id == reader_id)).scalar_one_or_none()
+        Gateways.init_reader(current_app, gateway_interface, reader)
+
         return redirect(url_for('readers.index'))
 
     reader = dbs.execute(db.select(Reader).where(Reader.id == reader_id)).scalar_one_or_none()
     gateways = Gateway.query.all()
-    reader_interface = Gateways.gateways.get(reader.gateway).reader_class.__annotations__
-    return render_template('readers/edit.html', reader=reader, gateways=gateways, reader_interface=reader_interface)
+    reader_annotations = Gateways.gateways.get(reader.gateway).reader_class.__annotations__
+    return render_template('readers/edit.html', reader=reader, gateways=gateways, reader_annotations=reader_annotations)
 
 @bp.route('/delete/<int:reader_id>', methods=['POST'])
-@login_required
+@admin_required
 def delete(reader_id):
     try:
+        if reader_id in BaseGateway.readers:
+            del BaseGateway.readers[reader_id]
         dbs.execute(db.delete(Reader).where(Reader.id == reader_id))
         dbs.commit()
         return redirect(url_for('readers.index'))

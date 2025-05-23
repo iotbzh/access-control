@@ -21,7 +21,7 @@ class Plugins:
     @classmethod
     def get_all_plugins(cls):
         for module_folder in glob.glob(f"{cls.plugins_folder}/*"):
-            if not os.path.isdir(module_folder):
+            if not os.path.isdir(module_folder) or "__" in module_folder:
                 continue
             module_name = os.path.basename(module_folder)
             plugin = importlib.import_module(f"{cls.plugins_folder}.{module_name}").Plugin

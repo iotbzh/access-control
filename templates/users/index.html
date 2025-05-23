@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Liste des utilisateurs</h1>
+<h1>Users list</h1>
 
 <div class="table-responsive">
   <table class="table table-striped align-middle">
@@ -9,10 +9,10 @@
       <tr>
         <th>ID</th>
         <th>UID</th>
-        <th>Nom</th>
+        <th>Name</th>
         <th>Email</th>
-        <th>Actif</th>
-        <th>Date création</th>
+        <th>Active</th>
+        <th>Creation Date</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -25,15 +25,15 @@
         <td>{{ user.email }}</td>
         <td>
           <span class="badge bg-{{ 'success' if user.is_active else 'danger' }}">
-            {{ 'Oui' if user.is_active else 'Non' }}
+            {{ 'Yes' if user.is_active else 'No' }}
           </span>
         </td>
         <td>{{ user.created_at }}</td>
         <td>
           <a href="{{ url_for('users.badges', user_id=user.id) }}" class="btn btn-sm btn-secondary"><i class="bi bi-credit-card-2-front-fill"></i></a>
-          <a href="{{ url_for('users.edit', user_id=user.id) }}" class="btn btn-sm btn-warning me-1">Modifier</a>
-          <form method="POST" action="{{ url_for('users.delete', user_id=user.id) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible !');">
-            <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+          <a href="{{ url_for('users.edit', user_id=user.id) }}" class="btn btn-sm btn-warning">Edit</a>
+          <form method="POST" action="{{ url_for('users.delete', user_id=user.id) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this user ?');">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
           </form>
         </td>
       </tr>
@@ -41,5 +41,5 @@
     </tbody>
   </table>
 </div>
-<a href="{{ url_for('users.add') }}" class="btn btn-success mt-3">Ajouter un utilisateur</a>
+<a href="{{ url_for('users.add') }}" class="btn btn-success mt-3">Add user</a>
 {% endblock %}
