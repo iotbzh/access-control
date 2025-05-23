@@ -65,13 +65,13 @@
         const indicator = card.querySelector(".btn")
 
         if (status) {
-            indicator.classList.remove("btn-success")
-            indicator.classList.add("btn-danger")
-            indicator.textContent = "Open"
-        } else {
             indicator.classList.add("btn-success")
             indicator.classList.remove("btn-danger")
             indicator.textContent = "Closed"
+        } else {
+            indicator.classList.remove("btn-success")
+            indicator.classList.add("btn-danger")
+            indicator.textContent = "Open"
         }
     }
 
