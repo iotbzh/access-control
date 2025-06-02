@@ -15,13 +15,9 @@ def convert_time_to_timedelta(t):
         return None
     if isinstance(t, timedelta):
         return t
-    # Si c'est un time, convertit en timedelta
     return timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)
 
 def access_control(gateway, reader_instance, badge_uid):
-    print(reader_instance)
-    print(reader_instance.reader)
-    print(reader_instance.reader.id)
     reader_id = reader_instance.reader.id
     reader = dbs.execute(db.select(Reader).where(Reader.id == reader_id)).scalar_one_or_none()
     print(f"UID reçu : {badge_uid} pour le lecteur : {reader.name}")
@@ -50,10 +46,6 @@ def access_control(gateway, reader_instance, badge_uid):
 
     now = datetime.now()
     now_time = timedelta(hours=now.hour, minutes=now.minute, seconds=now.second)
-
-    # DEBUG : Affiche le badge récupéré
-    # print("Badge récupéré :", badge.uid)
-    # print("Rôle de l'utilisateur :", badge.role)
 
     if not badge.is_active:
         log_access(reader.id, badge_uid, user.name, user.id, "denied", "Inactive Badge")

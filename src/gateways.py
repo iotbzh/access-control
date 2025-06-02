@@ -39,13 +39,10 @@ class Gateways:
         for gateway_uid in Gateways.get_all_gateways():
             readers = dbs.execute(db.select(Reader).where(Reader.gateway == gateway_uid)).scalars().all()
             gateway = cls.gateways.get(gateway_uid)
-            print(readers)
 
             for reader in readers:
-                print(reader)
                 dbs.expunge(reader)
                 cls.init_reader(app, gateway, reader)
-                # threading.Thread(target=cls.init_reader, args=(app, gateway, reader,), daemon=True).start()
             
             print(f" + {gateway_uid} gateway loaded !")
 
@@ -75,7 +72,6 @@ class Gateways:
             
             @reader_context(gateway, reader_instance)
             def on_badge(gateway, reader_instance, badge_uid):
-                print("2", reader_instance.reader.id)
                 with Gateways.app.app_context():
                     access_control(gateway, reader_instance, badge_uid)
 

@@ -11,7 +11,7 @@ bp = Blueprint('badges', __name__, url_prefix="/badges")
 @admin_required
 def index():
     user_id = request.args.get('user_id', type=int)
-    is_active = request.args.get('is_active')  # "1", "0" ou None
+    is_active = request.args.get('is_active')
 
     query = db.select(Badge)
     if user_id:
@@ -85,8 +85,6 @@ def edit(badge_id):
         
         if deactivation_date:
             deactivation_date = datetime.strptime(deactivation_date, '%Y-%m-%d')
-
-        print(deactivation_date, type(deactivation_date))
         
         dbs.execute(db.update(Badge).where(Badge.id == badge_id).values(uid=uid, user_id=user_id, is_active=is_active, deactivation_date=deactivation_date, role=role, guest_name=guest_name, company_name=company_name))
         dbs.commit()

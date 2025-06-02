@@ -30,7 +30,8 @@ def view(gateway_uid):
         readers = dbs.execute(db.select(Reader).where(Reader.gateway == gateway.uid)).scalars().all()
 
         for reader in readers:
-            gateway.restart(gateway.readers.get(reader.id))
+            if gateway.readers.get(reader.id):
+                gateway.restart(gateway.readers.get(reader.id))
         
         return redirect(url_for("gateways.index"))
 

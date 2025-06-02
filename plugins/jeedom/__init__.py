@@ -53,7 +53,7 @@ class Door(Element):
         if self.alerts >= (3 - int(closed)):
             return [skipail]
         else:
-            emails = dbs.execute(db.select(User.email).join(Log).where(Log.date_time < datetime.now() + timedelta(hours=8)).group_by(User.email)).scalars().all() # Timedelta doesnt work, getting everything
+            emails = dbs.execute(db.select(User.email).join(Log).where(Log.date_time > datetime.now() - timedelta(hours=8)).group_by(User.email)).scalars().all() # TODO: Fix Timedelta doesnt work, getting everything
             return emails
 
 doors = [
@@ -64,6 +64,8 @@ doors = [
 elements = [
     Element("shutters", "shutters_status_api")
 ] + doors
+
+doors[0].get_to_addresses()
 
 def get_status(api_url):
     return False if requests.get(api_url, verify=False).text == "0" else True

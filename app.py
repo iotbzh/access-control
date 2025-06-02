@@ -8,6 +8,7 @@ import os
 from flask_socketio import SocketIO
 from sqlalchemy import create_engine, func, desc
 from sqlalchemy_utils import database_exists, create_database
+from dotenv import load_dotenv
 
 from src.models import db, dbs, User, Role, Badge, Reader, Log, Plugin
 from src.auth import is_admin, login_user, login_required, logout_user, current_user, admin_required
@@ -31,8 +32,10 @@ from src.controllers.openid import bp as openid_controller
 from src.controllers.map import bp as map_controller
 from src.controllers.actions import bp as actions_controller
 
+load_dotenv()
+
 app = Flask(__name__)
-app.secret_key = "change_this_to_a_random_and_secret_string"
+app.secret_key = os.getenv("FLASK_SECRET")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URI", "sqlite:///database.sqlite") #f'mysql://root:root@172.17.0.2/access_control'
 
 Gateways.app = app
@@ -54,13 +57,6 @@ app.register_blueprint(actions_controller)
 db.init_app(app)
 migrate = Migrate(app, db)
 
-users_dict = {'admin': {
-    "id": 0,
-    "username": "admin",
-    "password": "password",
-    "ac_local": True
-}}
-
 def safe_url_for(endpoint, **values):
     try:
         return url_for(endpoint, **values)
@@ -78,9 +74,11 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = users_dict.get(username)
-        if user and user["password"] == password:  # Utilise un hash en prod !
-            login_user(user)
+        if username == "admin" and os.getenv("ADMIN_PASSWORD") == password:
+            login_user({
+                "username": "admin",
+                "ac_local": True
+            })
             next_url = request.args.get("next", url_for("index"))
             return redirect(next_url)
         flash('Invalid username or password')
@@ -159,5 +157,3 @@ if __name__ == '__main__':
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
         startup()
     sock.run(app, host="0.0.0.0", port=5000, debug=True)
-else:
-    print("[DEBUG] Running with an other Werkzeug server")

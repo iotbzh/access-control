@@ -14,7 +14,6 @@ class Client(requests.Session):
             args = tuple(largs)
         else:
             kwargs["url"] = "http://localhost:5000" + kwargs["url"]
-        # print(args, kwargs)
         return super().request(*args, **kwargs)
 
 @pytest.fixture(scope="session")

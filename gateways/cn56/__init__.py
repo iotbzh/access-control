@@ -95,7 +95,6 @@ class ReaderSock(socket.socket):
     def recv_thread(self):
         while True:
             data, addr = self.recvfrom(1024)
-            print(f"-> {addr} ({len(data)})")
             self.messages[addr] = self.messages.get(addr, []) + [data]
             if self.get_lock(addr).locked():
                 self.get_lock(addr).release()
@@ -137,7 +136,6 @@ class Reader(BaseReader):
     def send_data(self, data):
         try:
             self.sock.sendto(bytes(data), (self.ip, self.port))
-            # print(bytes(data).hex(" "))
         except Exception as e:
             print(f"Cannot send {len(data)} bytes to {self.ip}:{self.port} ", e)
             raise e
@@ -149,11 +147,9 @@ class Reader(BaseReader):
             if blocking: # Non-blocking doesnt timeout, so we can't check if alive
                 self.is_online = True
         except TimeoutError:
-            print("Timeout")
             self.is_online = False
         except Exception as e:
-            print(e, type(e))
-            traceback.print_exc()
+            pass
         return data
 
     def send_and_receive(self, data):
@@ -169,10 +165,7 @@ class Reader(BaseReader):
 
     def send_cmd(self, device_address, cmd_code, cmd_time, cmd_data):
         data = self.protocol.encode_reader(device_address, cmd_code, cmd_time, cmd_data)
-        # print(data)
         recv = self.send_and_receive(data)
-        # if recv:
-        #     print(recv.hex(" "))
         time.sleep(0.1) # Seems like race conditions are a thing on CN56 readers
         return recv
 
@@ -183,15 +176,13 @@ class Reader(BaseReader):
             self.do_some_magic()
 
     def run(self): # TCPRun
-        print(f"Connecting from 172.25.50.124:{self.port} to {self.ip}:{self.port}")
-        self.sock = ReaderSock(("172.25.50.124", self.port))
+        ip = Gateway.get_var("ip")
+        print(f"Connecting from {ip}:{self.port} to {self.ip}:{self.port}")
+        self.sock = ReaderSock((ip, self.port))
         self.running = True
         threading.Thread(target=self.keep_alive, daemon=True).start()
-        print("Connected")
 
     def disconnect(self):
-        # self.sock.close()
-        # self.sock = None
         self.running = False
 
     def do_some_magic(self):
@@ -264,6 +255,7 @@ class Gateway(BaseGateway):
 
     class Config:
         key: str = "00" * 16
+        ip: str = "172.25.50.124"
     
     class Actions:        
         @ActionButton("Say Hello")
@@ -294,7 +286,6 @@ class Gateway(BaseGateway):
             key = hex_to_byte_list(Configs.get_gateway_var(Gateway.uid, "key"))
 
             target = reader_instance.get_target()
-            print("Target:", target)
 
             reader_instance.select_target()
             reader_instance.select_application(0)
@@ -313,7 +304,6 @@ class Gateway(BaseGateway):
 
     @staticmethod
     def connect(reader: Reader):
-        print("CONNECT", reader.ip)
         if not reader.ip:
             return False
 
@@ -330,17 +320,12 @@ class Gateway(BaseGateway):
             reader.do_some_magic()
         except Exception as e:
             print("Cannot connect to the reader")
-            print(e)
-            traceback.print_exc()
             return False
-        
-        print("[ + ] Connected to reader")
 
         return True
     
     @staticmethod
     def disconnect(reader: Reader):
-        print("DISCONNECT")
         if not reader.ip:
             return
         reader.disconnect()
@@ -357,12 +342,10 @@ class Gateway(BaseGateway):
             try:
                 data = reader.receive_data(False)
             except Exception as e: 
-                print("Cannot Read Data:", e)
                 continue # No data
 
             if not data: continue
 
-            print(data)
             badge_uid = reader.get_uid(data)
             print("UID:", badge_uid)
 

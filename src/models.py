@@ -79,13 +79,6 @@ class RoleReader(db.Model):
     role = db.Column(db.Integer, db.ForeignKey('roles.id'), primary_key=True)
     reader_id = db.Column(db.Integer, db.ForeignKey('readers.id'), primary_key=True)
 
-
-# class UserZone(db.Model):
-#     __tablename__ = 'user_zones'
-
-#     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
-#     zone_id = db.Column(db.Integer, db.ForeignKey('access_zones.id', ondelete='CASCADE'), primary_key=True)
-
 class Setting(db.Model):
     __tablename__ = 'settings'
 
