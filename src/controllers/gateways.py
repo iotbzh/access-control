@@ -9,7 +9,7 @@ bp = Blueprint('gateways', __name__, url_prefix="/gateways")
 @bp.route('/')
 @admin_required
 def index():
-    gateways = Gateways.get_all_gateways()
+    gateways = Gateways.gateways
     return render_template('gateways/index.html', gateways=gateways.values())
 
 @bp.route('/<gateway_uid>', methods=["GET", "POST"])

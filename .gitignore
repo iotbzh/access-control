@@ -4,3 +4,12 @@ example_reader.*
 instance/
 .pytest_cache/
 .env
+
+gateways/*
+!gateways/README.md
+
+plugins/*
+!plugins/README.md
+
+.addons/*
+!.addons/.gitkeep

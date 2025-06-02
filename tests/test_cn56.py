@@ -54,7 +54,8 @@ def test_valid_reader_scan(admin_client):
 
 def test_config_gateway_key(admin_client):
     admin_client.post("/gateways/cn56-gateway", data={
-        "key": "44000000000000000000000000000033"
+        "key": "44000000000000000000000000000033",
+        "ip": "172.25.50.124"
     })
 
     rv = admin_client.get("/gateways/cn56-gateway")

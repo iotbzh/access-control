@@ -13,13 +13,14 @@ def index():
     user_id = request.args.get('user_id', type=int)
     is_active = request.args.get('is_active')
 
-    query = db.select(Badge)
+    query = db.select(Badge, User.name, Role.name)
     if user_id:
         query = query.where(Badge.user_id == user_id)
     if is_active in ("0", "1"):
         query = query.where(Badge.is_active == is_active)
-
-    badges = db.session.execute(query).scalars().all()
+    
+    query = query.join(User).join(Role)
+    badges = db.session.execute(query).all()
     users = User.query.all()
 
     return render_template(

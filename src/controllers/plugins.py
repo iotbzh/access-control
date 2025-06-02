@@ -9,7 +9,7 @@ bp = Blueprint('plugins', __name__, url_prefix="/plugins")
 @bp.route('/')
 @admin_required
 def index():
-    plugins = Plugins.get_all_plugins()
+    plugins = Plugins.plugins
     return render_template('plugins/index.html', plugins=plugins.values())
 
 @bp.route('/<plugin_uid>', methods=["GET", "POST"])

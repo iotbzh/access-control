@@ -24,7 +24,7 @@ def test_badge_edit(admin_client):
         "uid": "cc39a284bed549c5cdc3a61ed9e63c7a",
         "user_id": "1",
         "role": "1",
-        "deactivation_date": "2030-01-01",
+        "deactivation_date": "1992-10-03",
         "guest_name": "Guest Name",
         "company_name": "Campany Name"
     })

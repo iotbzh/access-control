@@ -1,7 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, current_app, session
-from flask_mysqldb import MySQL
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, current_app, sessions
 from flask_migrate import Migrate, upgrade
-import MySQLdb
 import threading
 import time
 import os
@@ -20,6 +18,9 @@ from src.plugins import Plugins
 import src.socketio as socketio
 import src.openid as openid
 from src.lib.gateway import BaseGateway
+from src.lib.reader import BaseReader
+from src.access import access_control
+from src.addons import Addons
 
 from src.controllers.users import bp as users_controller
 from src.controllers.badges import bp as badges_controller
@@ -31,6 +32,7 @@ from src.controllers.plugins import bp as plugins_controller
 from src.controllers.openid import bp as openid_controller
 from src.controllers.map import bp as map_controller
 from src.controllers.actions import bp as actions_controller
+from src.controllers.addons import bp as addons_controller
 
 load_dotenv()
 
@@ -38,11 +40,15 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URI", "sqlite:///database.sqlite") #f'mysql://root:root@172.17.0.2/access_control'
 
+# Add references to app
 Gateways.app = app
+Plugins.app = app
 openid.app = app
+
 socketio.sock = SocketIO(app)
 sock = socketio.sock
 
+# Import all controllers
 app.register_blueprint(users_controller)
 app.register_blueprint(badges_controller)
 app.register_blueprint(readers_controller)
@@ -53,10 +59,12 @@ app.register_blueprint(openid_controller)
 app.register_blueprint(plugins_controller)
 app.register_blueprint(map_controller)
 app.register_blueprint(actions_controller)
+app.register_blueprint(addons_controller)
 
 db.init_app(app)
 migrate = Migrate(app, db)
 
+# A safe url_for to not crash when route not found
 def safe_url_for(endpoint, **values):
     try:
         return url_for(endpoint, **values)
@@ -67,7 +75,10 @@ app.jinja_env.globals['safe_url_for'] = safe_url_for
 
 @app.context_processor
 def inject_globals():
-    return dict(is_admin=is_admin(current_user()))
+    return {
+        "is_admin": is_admin(current_user()), 
+        "is_logged": bool(current_user())
+    }
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -94,18 +105,19 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-@app.route('/zones_socketio')
-@login_required
-def zones_socketio():
+@app.route('/status')
+def status():
     readers = Reader.query.all()
-    return render_template('zones_socketio.html', readers=readers)
+    return render_template('status.html', readers=readers)
 
 @app.route('/')
-@login_required
 def index():
+    if not current_user():
+        return redirect(url_for("map.index"))
     plugins = Plugin.query.all()
     return render_template('index.html', user=current_user, plugins=plugins)
 
+# TODO: Move to logs controller
 @app.route('/logs/<reader_id>')
 @admin_required
 def reader_logs(reader_id):
@@ -120,7 +132,7 @@ def logs():
     offset = (page - 1) * per_page
 
     total_logs = db.session.execute(db.select(func.count()).select_from(Log)).one()[0]
-    logs = db.session.execute(db.select(Log).offset(offset).limit(per_page).order_by(desc(Log.id))).scalars().all()
+    logs = db.session.execute(db.select(Log, Reader.name).join(Reader).offset(offset).limit(per_page).order_by(desc(Log.id))).all()
 
     total_pages = (total_logs + per_page - 1) // per_page
 
@@ -133,8 +145,13 @@ def logs():
         total_logs=total_logs
     )
 
+@app.route("/tests/access/<gateway_uid>/<reader_id>/<badge_uid>")
+def tests_access(gateway_uid, reader_id, badge_uid):
+    gateway = Gateways.get(gateway_uid)
+    reader_instance = gateway.get_reader_instance(reader_id)
+    return str(access_control(gateway, reader_instance, badge_uid))
+
 @sock.on("updateReadersStatus")
-@login_required
 def on_update():
     readers_instance = BaseGateway.readers.values()
     status = {}
@@ -146,8 +163,8 @@ def startup():
     with app.app_context():
         upgrade()
 
-        Gateways.init_all(app)
-        Plugins.init_all(app)
+        Gateways.init_all()
+        Plugins.init_all()
         Settings.init()
         SMTP.init()
 
@@ -155,5 +172,6 @@ def startup():
 
 if __name__ == '__main__':
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+        # This will run once
         startup()
-    sock.run(app, host="0.0.0.0", port=5000, debug=True)
+    sock.run(app, host="0.0.0.0", port=5000, debug=bool(os.getenv("DEV", False)))

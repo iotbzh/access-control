@@ -48,6 +48,10 @@ It's like a manager for an object, for example the User controller have the code
 
 A model is a table in the database, by importing the class you can use the ORM to execute commands for the table like `select` or `update`
 
+### Addons
+
+A git repository that contain multiple Gateways or Plugins or both, they can be imported and updated 
+
 ### Gateways
 
 To connect a reader to the server you need to use or create a Gateway. A Gateway consist of multiple required or optional parts, the Gateway class, the Reader class, the Gateway Config and Gateway Actions.

@@ -1,10 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Gestion des plugins</h1>
-<a href="" class="btn btn-primary mb-3">
-    <i class="bi bi-arrow-clockwise"></i> Reload all plugins
-</a>
+<h1>Plugins Managing</h1>
+<a href="{{ url_for('addons.index') }}" class="btn btn-success mt-3">Manage</a>
 
 <table class="table table-striped align-middle">
     <thead>

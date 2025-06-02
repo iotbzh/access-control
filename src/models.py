@@ -106,3 +106,10 @@ class Plugin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.String(64), nullable=False)
     configs = db.Column(db.JSON)
+
+class Addon(db.Model):
+    __tablename__ = "addons"
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(64), nullable=False)
+    git_url = db.Column(db.String(128))

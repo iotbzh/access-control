@@ -8,7 +8,6 @@ from src.lib.gateway import BaseGateway
 bp = Blueprint('map', __name__, url_prefix="/map")
 
 @bp.route('/')
-@login_required
 def index():
     readers_instance = BaseGateway.readers
     readers = Reader.query.all()

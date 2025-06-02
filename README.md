@@ -10,19 +10,24 @@
 
 ```bash
 python3 -m venv venv
+. venv/bin/activate
 pip install -r requirements.txt
 ```
 
-#### Migrations
+### Migrations
+
+If you want to edit the `models.py` file, you will need to create migrations
 
 ```bash
-FLASK_MIGRATE=1 flask db upgrade
+FLASK_MIGRATE=1 flask db migrate
 ```
 
-If you want to edit the `models.py` file, you will need to create migrations and apply them by running:
+### Run the app
 
-```bash
-FLASK_MIGRATE=1 flask db migrate && FLASK_MIGRATE=1 flask db upgrade
+No need to use an other WSGI for production, it already uses `eventlet`
+
+```
+python3 app.py
 ```
 
 ### Open the WebUI

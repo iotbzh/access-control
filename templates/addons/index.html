@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Manage Addons</h1>
+<a href="{{ url_for('addons.import_') }}" class="btn btn-success mt-3 mb-3">Import addon</a>
+
+<h3>Gateways:</h3>
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>UID</th>
+            <th>Git URL</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for addon in addons %}
+        <tr>
+            <td>{{ addon['uid'] }}</td>
+            <td>{{ addon['git_url'] }}</td>
+            <td class="d-flex gap-1">
+                <form action="update/{{ addon['uid'] }}" method="post">
+                    <button class="btn btn-sm btn-warning" title="Update">
+                        Update
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
