@@ -38,7 +38,7 @@ def add():
             dbs.commit()
 
             gateway_interface = Gateways.gateways.get(gateway)
-            Gateways.init_reader(current_app, gateway_interface, reader)
+            Gateways.init_reader(gateway_interface, reader)
             
             return redirect(url_for('readers.index'))
         except Exception as err:
@@ -68,7 +68,7 @@ def edit(reader_id):
         dbs.commit()
 
         reader = dbs.execute(db.select(Reader).where(Reader.id == reader_id)).scalar_one_or_none()
-        Gateways.init_reader(current_app, gateway_interface, reader)
+        Gateways.init_reader(gateway_interface, reader)
 
         return redirect(url_for('readers.index'))
 
