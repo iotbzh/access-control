@@ -12,7 +12,7 @@ def check_login_redirect(client, checked_routes, url):
     assert rv.url.endswith(f"/login?next={url}") 
 
 def test_home(client, checked_routes):
-    check_login_redirect(client, checked_routes, "/")
+    check_login_redirect(client, checked_routes, "/users/")
 
 # def test_all_checked(checked_routes):
 #     output = []

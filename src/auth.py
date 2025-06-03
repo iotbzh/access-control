@@ -24,7 +24,7 @@ def login_required(func):
 def admin_required(func):
     def wrap(*args, **kwargs):
         if not current_user():
-            return redirect(url_for("login"))
+            return redirect(url_for("login", next=request.path))
         
         user = current_user()
         if is_admin(user):

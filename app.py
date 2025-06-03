@@ -112,8 +112,6 @@ def status():
 
 @app.route('/')
 def index():
-    if not current_user():
-        return redirect(url_for("map.index"))
     plugins = Plugin.query.all()
     return render_template('index.html', user=current_user, plugins=plugins)
 
