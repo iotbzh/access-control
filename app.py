@@ -169,7 +169,10 @@ def startup():
     init_schedules(app)
 
 if __name__ == '__main__':
+    dev_mode = bool(os.getenv("DEV", False))
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
         # This will run once
         startup()
-    sock.run(app, host="0.0.0.0", port=5000, debug=bool(os.getenv("DEV", False)))
+    elif not dev_mode:
+        startup()
+    sock.run(app, host="0.0.0.0", port=5000, debug=dev_mode)

@@ -12,9 +12,11 @@ class Configs:
     @classmethod
     def get_plugin_var(cls, plugin_uid, var):
         plugin = dbs.execute(db.select(Plugin).where(Plugin.uid == plugin_uid)).scalar_one_or_none()
+        if not plugin: return None
         return plugin.configs.get(var)
     
     @classmethod
     def get_gateway_var(cls, gateway_uid, var):
         gateway = dbs.execute(db.select(Gateway).where(Gateway.uid == gateway_uid)).scalar_one_or_none()
+        if not gateway: return None
         return gateway.configs.get(var)
