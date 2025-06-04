@@ -23,10 +23,14 @@
             <td>{{ addon['git_url'] }}</td>
             <td class="d-flex gap-1">
                 <form action="{{ url_for('addons.update', addon_uid=addon['uid']) }}" method="post">
-                    <button class="btn btn-sm btn-warning" title="Update">Update</button>
+                    <button class="btn btn-sm btn-warning" title="Update" data-bs-toggle="tooltip" data-bs-title="Edit">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
                 </form>
                 <form method="POST" action="{{ url_for('addons.delete', addon_uid=addon['uid']) }}" onsubmit="return confirm('Are you sure you want to delete this addon ?');">
-                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    <button type="submit" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-title="Delete">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
                 </form>
             </td>
         </tr>

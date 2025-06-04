@@ -18,7 +18,7 @@
             <h3 class="mb-0 h5">LDAP</h3>
         </div>
         <div class="card-body">
-            <div class="form-check mb-3">
+            <div class="form-check form-switch mb-3">
                 <input class="form-check-input" type="checkbox" id="ldap-enabled" name="ldap-enabled" {% if settings.ldap_enabled %}checked{% endif %} form="settings">
                 <label class="form-check-label" for="ldap-enabled">
                     Enabled
@@ -46,7 +46,7 @@
             <h3 class="mb-0 h5">OpenID</h3>
         </div>
         <div class="card-body">
-            <div class="form-check mb-3">
+            <div class="form-check form-switch mb-3">
                 <input class="form-check-input" type="checkbox" id="openid-enabled" name="openid-enabled" {% if settings.openid_enabled %}checked{% endif %} form="settings">
                 <label class="form-check-label" for="openid-enabled">
                     Enabled

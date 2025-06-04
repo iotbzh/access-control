@@ -15,11 +15,11 @@
         <tr>
             <td>{{ plugin['uid'] }}</td>
             <td class="d-flex gap-1">
-                <a href="{{ url_for('plugins.view', plugin_uid=plugin["uid"]) }}" class="btn btn-sm btn-warning" title="Modifier">
+                <a href="{{ url_for('plugins.view', plugin_uid=plugin["uid"]) }}" class="btn btn-sm btn-warning" title="Edit" data-bs-toggle="tooltip" data-bs-title="Edit">
                     <i class="bi bi-pencil-fill"></i>
                 </a>
                 {% if safe_url_for(plugin['uid'] + '.index') %}
-                <a href="{{ safe_url_for(plugin['uid'] + '.index') }}" class="btn btn-sm btn-secondary" title="Modifier">
+                <a href="{{ safe_url_for(plugin['uid'] + '.index') }}" class="btn btn-sm btn-secondary" title="View" data-bs-toggle="tooltip" data-bs-title="View">
                     <i class="bi bi-eye"></i>
                 </a>
                 {% endif %}

@@ -41,12 +41,11 @@
                 {{ reader["gateway"] }}
             </td>
             <td class="d-flex gap-1">
-                <a href="{{ url_for('readers.edit', reader_id=reader['id']) }}" class="btn btn-sm btn-warning" title="Edit">
+                <a href="{{ url_for('readers.edit', reader_id=reader['id']) }}" class="btn btn-sm btn-warning" title="Edit"  data-bs-toggle="tooltip" data-bs-title="Edit">
                     <i class="bi bi-pencil-fill"></i>
                 </a>
                 <form method="POST" action="{{ url_for('readers.delete', reader_id=reader['id']) }}" style="display:inline;">
-                    <button type="submit" class="btn btn-sm btn-danger"
-                            onclick="return confirm('Delete this reader ?')" title="Delete">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this reader ?')" title="Delete" data-bs-toggle="tooltip" data-bs-title="Delete">
                         <i class="bi bi-trash-fill"></i>
                     </button>
                 </form>

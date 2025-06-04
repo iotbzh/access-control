@@ -58,11 +58,12 @@ def edit(reader_id):
         gateway = request.form.get("gateway")
         gateway_interface = Gateways.gateways.get(gateway)
 
-        gateway_reader_configs = gateway_interface.reader_class.__annotations__
         gateway_configs = {}
+        if gateway_interface:
+            gateway_reader_configs = gateway_interface.reader_class.__annotations__
 
-        for config in gateway_reader_configs:
-            gateway_configs[config] = gateway_reader_configs[config](request.form.get("gateway-" + config))
+            for config in gateway_reader_configs:
+                gateway_configs[config] = gateway_reader_configs[config](request.form.get("gateway-" + config))
 
         dbs.execute(db.update(Reader).where(Reader.id == reader_id).values(name=name, description=description, is_active=is_active, gateway=gateway, gateway_configs=gateway_configs))
         dbs.commit()
@@ -74,7 +75,11 @@ def edit(reader_id):
 
     reader = dbs.execute(db.select(Reader).where(Reader.id == reader_id)).scalar_one_or_none()
     gateways = Gateway.query.all()
-    reader_annotations = Gateways.gateways.get(reader.gateway).reader_class.__annotations__
+    gateway_interface = Gateways.gateways.get(reader.gateway)
+    if gateway_interface:
+        reader_annotations = gateway_interface.reader_class.__annotations__
+    else:
+        reader_annotations = {}
     return render_template('readers/edit.html', reader=reader, gateways=gateways, reader_annotations=reader_annotations)
 
 @bp.route('/delete/<int:reader_id>', methods=['POST'])
