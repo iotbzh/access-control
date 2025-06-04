@@ -1,32 +1,30 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container py-4">
-    <h1 class="mb-4">Realtime readers status</h1>
-    <div class="table-responsive">
-        <table class="table table-striped align-middle" id="lecteurs-table">
-            <thead class="table-light">
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for reader in readers %}
-                <tr id="row-{{ reader.id }}">
-                    <td>{{ reader.id }}</td>
-                    <td>{{ reader.name }}</td>
-                    <td>
-                        <span class="badge bg-warning" id="status-{{ reader.id }}">
-                            ...
-                        </span>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<h1 class="mb-4">Status</h1>
+<div class="table-responsive">
+    <table class="table table-striped align-middle" id="lecteurs-table">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reader in readers %}
+            <tr id="row-{{ reader.id }}">
+                <td>{{ reader.id }}</td>
+                <td>{{ reader.name }}</td>
+                <td>
+                    <span class="badge bg-warning" id="status-{{ reader.id }}">
+                        ...
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}
 
