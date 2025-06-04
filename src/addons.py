@@ -48,4 +48,4 @@ class Addons:
             os.remove(f"plugins/{os.path.basename(src)}")
         
         # Remove cloned repo
-        os.remove(f".addons/{uid}")
+        os.rmdir(f".addons/{uid}")
