@@ -3,6 +3,7 @@ from src.gateways import Gateways
 from src.plugins import Plugins
 from src.models import db, dbs, Addon
 
+import shutil
 from pathlib import Path
 import os
 import glob
@@ -54,4 +55,4 @@ class Addons:
             safe_remove(f"plugins/{os.path.basename(src)}")
         
         # Remove cloned repo
-        os.rmdir(f".addons/{uid}")
+        shutil.rmtree(f".addons/{uid}", ignore_errors=True)
