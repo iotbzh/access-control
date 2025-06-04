@@ -41,11 +41,17 @@ class Addons:
         dbs.execute(db.delete(Addon).where(Addon.uid == uid))
         dbs.commit()
 
+        # Dont raise error if cannot remove
+        # Should send message to logger
+        def safe_remove(path):
+            try: os.remove(path)
+            except: pass
+
         # Remove all symlinks
         for src in glob.glob(f".addons/{uid}/gateways/*"):
-            os.remove(f"gateways/{os.path.basename(src)}")
+            safe_remove(f"gateways/{os.path.basename(src)}")
         for src in glob.glob(f".addons/{uid}/plugins/*"):
-            os.remove(f"plugins/{os.path.basename(src)}")
+            safe_remove(f"plugins/{os.path.basename(src)}")
         
         # Remove cloned repo
         os.rmdir(f".addons/{uid}")
