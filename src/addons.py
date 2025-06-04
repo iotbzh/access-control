@@ -37,14 +37,15 @@ class Addons:
         Git.pull(f".addons/{uid}")
     
     @staticmethod
-    def remove(url):
-        repo_name = url.split("/")[-1].split(".")[0]
+    def remove(uid):
+        dbs.execute(db.delete(Addon).where(Addon.uid == uid))
+        dbs.commit()
 
         # Remove all symlinks
-        for src in glob.glob(f".addons/{repo_name}/gateways/*"):
+        for src in glob.glob(f".addons/{uid}/gateways/*"):
             os.remove(f"gateways/{os.path.basename(src)}")
-        for src in glob.glob(f".addons/{repo_name}/plugins/*"):
+        for src in glob.glob(f".addons/{uid}/plugins/*"):
             os.remove(f"plugins/{os.path.basename(src)}")
         
         # Remove cloned repo
-        os.remove(f".addons/{repo_name}")
+        os.remove(f".addons/{uid}")

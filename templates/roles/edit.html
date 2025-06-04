@@ -24,7 +24,7 @@
             <div class="d-flex gap-2 flex-wrap">
                 {% for day in ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] %}
                 <div>
-                    <input type="checkbox" class="form-check-input" id="day_access_{{day}}" name="access_days" value="{{ loop.index0 }}">
+                    <input type="checkbox" class="form-check-input" id="day_access_{{day}}" name="access_days" value="{{ loop.index0 }}" {{ 'checked' if str(loop.index0) in role.access_days }}>
                     <label for="day_access_{{day}}"" class="form-check-label">{{ day|capitalize }}</label>
                 </div>
                 {% endfor %}

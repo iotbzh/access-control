@@ -85,6 +85,15 @@
 
     <main class="py-4" style="padding-bottom: 100px !important;">
         <div class="container">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+            {% endwith %}
             {% block content %}{% endblock %}
         </div>
     </main>

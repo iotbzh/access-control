@@ -50,3 +50,9 @@ def import_():
 def update(addon_uid):
     Addons.update(addon_uid)
     return restart()
+
+@bp.route('/delete/<addon_uid>', methods=['POST'])
+@admin_required
+def delete(addon_uid):
+    Addons.remove(addon_uid)
+    return redirect(url_for('addons.index'))

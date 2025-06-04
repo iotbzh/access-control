@@ -49,7 +49,10 @@ class Gateways:
         # For each readers, extract reader from context and initialize it
         for reader in readers:
             dbs.expunge(reader)
-            cls.init_reader(gateway, reader)
+            try:
+                cls.init_reader(gateway, reader)
+            except Exception as e:
+                print(f"Could not initialize reader: {e}")
         
         print(f" + {gateway_uid} gateway loaded !")
 
