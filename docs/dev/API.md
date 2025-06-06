@@ -57,6 +57,26 @@ def index():
 
 ## Configs
 
+```py
+from src.configs import Configs
+```
+
+### `Configs.get_plugin_var(plugin_uid: str, var: any)`
+
+This returns the value of the variable in the plugin config
+
+```py
+Configs.get_plugin_var("example_pl", "message")
+```
+
+### `Configs.get_gateway_var(gateway_uid: str, var: any)`
+
+This returns the value of the variable in the gateway config
+
+```py
+Configs.get_gateway_var("example_gw", "ip")
+```
+
 ## Models
 
 Uses `flask_sqlalchemy`
