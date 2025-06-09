@@ -68,22 +68,23 @@ def delete(role_id):
         dbs.rollback()
         return f"Erreur lors de la suppression : {str(e)}", 500
 
-@bp.route('/readers/<string:role>', methods=['GET', 'POST'])
+@bp.route('/readers/<string:role_id>', methods=['GET', 'POST'])
 @admin_required
-def readers(role):
+def readers(role_id):
     if request.method == 'POST':
-        dbs.execute(db.delete(RoleReader).where(RoleReader.role == role))
+        dbs.execute(db.delete(RoleReader).where(RoleReader.role == role_id))
         dbs.commit()
         
         selected_readers = request.form.getlist('readers')
         for reader_id in selected_readers:
-            dbs.add(RoleReader(role=role, reader_id=reader_id))
+            dbs.add(RoleReader(role=role_id, reader_id=reader_id))
 
         dbs.commit()
         return redirect(url_for('roles.index'))
     
     readers = Reader.query.all()
-    allowed_readers = [r.reader_id for r in dbs.execute(db.select(RoleReader).where(RoleReader.role == role)).scalars().all()]
+    allowed_readers = [r.reader_id for r in dbs.execute(db.select(RoleReader).where(RoleReader.role == role_id)).scalars().all()]
+    role = dbs.execute(db.select(Role).where(Role.id == role_id)).scalar_one_or_none()
     
     return render_template('roles/readers.html', 
                          role=role, 

@@ -41,12 +41,12 @@
 
         <div class="col-md-6">
             <label for="guest_name" class="form-label">Guest Name :</label>
-            <input type="text" class="form-control" id="guest_name" name="guest_name" value="{{ badge.guest_name|default('') }}">
+            <input type="text" class="form-control" id="guest_name" name="guest_name" value="{{ badge.guest_name or "" }}">
         </div>
 
         <div class="col-md-6">
             <label for="company_name" class="form-label">Company Name :</label>
-            <input type="text" class="form-control" id="company_name" name="company_name" value="{{ badge.company_name|default('') }}">
+            <input type="text" class="form-control" id="company_name" name="company_name" value="{{ badge.company_name or "" }}">
         </div>
 
         <div class="col-12">
