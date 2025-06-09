@@ -50,3 +50,14 @@ def actions(reader_id):
     gateway = Gateways.get(reader.gateway)
     actions = [ action for action in gateway.get_all_actions() if hasattr(action, "is_button_action") ]
     return render_template("map/actions.html", gateway_uid=gateway.uid, actions=actions, reader_id=reader_id)
+
+@bp.route('/change', methods=['POST'])
+@admin_required
+def change():
+    map_file = request.files.get('map_file')
+
+    if not map_file:
+        return "No map file"
+    
+    map_file.save("static/map.svg")
+    return redirect(url_for("map.index"))
