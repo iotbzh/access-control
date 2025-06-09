@@ -23,7 +23,7 @@
             <td>{{ addon['git_url'] }}</td>
             <td class="d-flex gap-1">
                 <form action="{{ url_for('addons.update', addon_uid=addon['uid']) }}" method="post">
-                    <button class="btn btn-sm btn-warning" title="Update" data-bs-toggle="tooltip" data-bs-title="Edit">
+                    <button class="btn btn-sm btn-warning" title="Update" data-bs-toggle="tooltip" data-bs-title="Update">
                         <i class="bi bi-arrow-clockwise"></i>
                     </button>
                 </form>
