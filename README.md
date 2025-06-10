@@ -1,9 +1,5 @@
 # access-control-rfid-nfc
 
-> [!WARNING]  
-> This project is being reworked, there are a lot of issues from the port to the new architecture  
-> There are a lot of possible exploits, please be aware.
-
 ## How to run it
 
 ### Install packages
@@ -24,7 +20,8 @@ FLASK_MIGRATE=1 flask db migrate
 
 ### Run the app
 
-No need to use an other WSGI for production, it already uses `eventlet`
+No need to use an other WSGI for production, it already uses `eventlet`.  
+You will need to create a `.env`, you can use the `.env.example` as example.
 
 ```
 python3 app.py
@@ -32,7 +29,7 @@ python3 app.py
 
 ### Open the WebUI
 
-Go to [http://localhost:5000](http://localhost:5000) and login with the user `admin:password`
+Go to [http://localhost:5000](http://localhost:5000) and login with the user `admin:password` (You can modify the `.env` to change the admin password)
 
 ## Run tests
 
