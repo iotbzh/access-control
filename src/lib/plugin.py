@@ -2,6 +2,7 @@ from src.configs import Configs
 
 class BasePlugin:
     uid = "unknown"
+    navlinks = {}
 
     class Config:
         pass

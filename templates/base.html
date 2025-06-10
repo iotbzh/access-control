@@ -38,7 +38,7 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ url_for('logs') }}">Access Logs</a>
                             </li>
-                            <li class="nav-item dropdown">
+                            <li class="nav-item dropdown" style="border-right: 1px solid rgb(200, 200, 200); padding-right: 10px; margin-right: 10px;">
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     Addons
                                 </a>
@@ -50,6 +50,13 @@
                                 </ul>
                             </li>
                         {% endif %}
+                        {% for plugin in plugin_instances.values() %}
+                            {% for link_name, link_url in plugin.navlinks.items() %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{link_url}}">{{link_name}}</a>
+                                </li>
+                            {% endfor %}
+                        {% endfor %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('status') }}">Status</a>
                         </li>

@@ -75,9 +75,11 @@ app.jinja_env.globals['safe_url_for'] = safe_url_for
 
 @app.context_processor
 def inject_globals():
+    plugin_instances = Plugins.plugins
     return {
         "is_admin": is_admin(current_user()), 
-        "is_logged": bool(current_user())
+        "is_logged": bool(current_user()),
+        "plugin_instances": plugin_instances
     }
 
 @app.route('/login', methods=['GET', 'POST'])
