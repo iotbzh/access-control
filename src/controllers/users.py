@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 
-from src.models import db, dbs, User, Badge
+from src.models import db, dbs, User, Badge, Role
 from src.auth import login_user, admin_required, logout_user, current_user
 
 bp = Blueprint('users', __name__, url_prefix="/users")
@@ -60,6 +60,6 @@ def delete(user_id):
 @bp.route("/badges/<int:user_id>")
 @admin_required
 def badges(user_id):
-    user_badges = dbs.execute(db.select(Badge).where(Badge.user_id == user_id)).scalars().all()
+    user_badges = dbs.execute(db.select(Badge, Role.name).where(Badge.user_id == user_id).join(Role)).all()
     user = dbs.execute(db.select(User).where(User.id == user_id)).scalar_one_or_none()
     return render_template('users/badges.html', user=user, badges=user_badges)

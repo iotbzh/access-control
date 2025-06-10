@@ -13,24 +13,28 @@
         <tr>
             <th>ID</th>
             <th>UID</th>
-            <th>User</th>
             <th>Active</th>
-            <th>Desactivatin Date</th>
+            <th>Deactivation date</th>
+            <th>Guest Name</th>
+            <th>Company Name</th>
+            <th>Role</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        {% for badge in badges %}
+        {% for badge, role_name in badges %}
         <tr>
             <td>{{ badge['id'] }}</td>
             <td>{{ badge['uid'] }}</td>
-            <td>{{ badge['user_id'] or 'Aucun' }}</td>
             <td>
                 <span class="badge bg-{{ 'success' if badge['is_active'] else 'danger' }}">
                     {{ 'Yes' if badge['is_active'] else 'No' }}
                 </span>
             </td>
             <td>{{ badge['deactivation_date'] or '-' }}</td>
+            <td>{{ badge['guest_name'] or '-' }}</td>
+            <td>{{ badge['company_name'] or '-' }}</td>
+            <td>{{ role_name }}</td>
             <td>
                 <a href="{{ url_for('badges.edit', badge_id=badge['id']) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" data-bs-title="Edit">
                     <i class="bi bi-pencil-fill"></i>
