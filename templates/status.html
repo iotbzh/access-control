@@ -8,6 +8,7 @@
             <tr>
                 <th>ID</th>
                 <th>Name</th>
+                <th>Description</th>
                 <th>Status</th>
             </tr>
         </thead>
@@ -16,6 +17,7 @@
             <tr id="row-{{ reader.id }}">
                 <td>{{ reader.id }}</td>
                 <td>{{ reader.name }}</td>
+                <td>{{ reader.description }}</td>
                 <td>
                     <span class="badge bg-warning" id="status-{{ reader.id }}">
                         ...
