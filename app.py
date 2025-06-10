@@ -160,7 +160,7 @@ def logs_export():
     return  send_file(
         BytesIO(b"\n".join(formated_logs)), 
         as_attachment=True,
-        download_name=f'access-logs_{datetime.now().strftime('%d-%m-%Y')}.txt',
+        download_name=f'access-logs_{datetime.now().strftime("%d-%m-%Y")}.txt',
         mimetype='text/txt'
     )
 
