@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, current_app, sessions
+from flask import Flask, Response, send_file, render_template, request, redirect, url_for, flash, jsonify, current_app, sessions
 from flask_migrate import Migrate, upgrade
 import threading
 import time
@@ -7,6 +7,8 @@ from flask_socketio import SocketIO
 from sqlalchemy import create_engine, func, desc
 from sqlalchemy_utils import database_exists, create_database
 from dotenv import load_dotenv
+from io import BytesIO
+from datetime import datetime
 
 from src.models import db, dbs, User, Role, Badge, Reader, Log, Plugin
 from src.auth import is_admin, login_user, login_required, logout_user, current_user, admin_required
@@ -143,6 +145,20 @@ def logs():
         per_page=per_page,
         total_pages=total_pages,
         total_logs=total_logs
+    )
+
+@app.route("/logs/export")
+def logs_export():
+    logs = dbs.execute(db.select(Log, User).join(User, isouter=True)).all()
+    formated_logs = []
+    for log, user in logs:
+        print(log, user)
+        formated_logs.append(f"[ {log.date_time} ] {user.name if user else '-'} ({log.badge_uid}) {log.result} on reader {log.reader_id} ({log.reason})".encode())
+    return  send_file(
+        BytesIO(b"\n".join(formated_logs)), 
+        as_attachment=True,
+        download_name=f'access-logs_{datetime.now().strftime('%d-%m-%Y')}.txt',
+        mimetype='text/txt'
     )
 
 @app.route("/tests/access/<gateway_uid>/<reader_id>/<badge_uid>")
