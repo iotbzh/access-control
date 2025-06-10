@@ -1,3 +1,4 @@
+import logging
 from flask import Flask
 import importlib
 import glob
@@ -6,6 +7,7 @@ import threading
 
 from src.models import db, dbs, Plugin
 from src.configs import Configs
+from src.logger import Logger
 
 class Plugins:
 
@@ -38,6 +40,8 @@ class Plugins:
             dbs.add(Plugin(uid=plugin.uid, configs=default_config))
             dbs.commit()
         
+        Logger.init_plugin(plugin.uid)
+        
         cls.init_plugin(plugin.uid)
 
     @classmethod
@@ -45,10 +49,9 @@ class Plugins:
         plugin = cls.plugins[plugin_uid]
         try:
             Plugins.app.register_blueprint(plugin.bp)
-            print(f" + {plugin.uid} plugin loaded !")
+            logging.info(f" + {plugin.uid} plugin loaded !")
         except:
-            # TODO: Use werkzeug DispatcherMiddleware to avoid using register_blueprint
-            print(f" - Cannot load plugin {plugin.uid}, please restart the server")
+            logging.warning(f" - Cannot load plugin {plugin.uid}, please restart the server")
     
     @classmethod
     def get(cls, plugin_uid):

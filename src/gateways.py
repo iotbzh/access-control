@@ -1,6 +1,7 @@
 import importlib
 import glob
 import os
+import logging
 import threading
 import time
 from flask import current_app, Flask
@@ -8,6 +9,7 @@ from flask import current_app, Flask
 from src.models import db, dbs, Gateway, Reader
 from src.access import access_control
 from src.configs import Configs
+from src.logger import Logger
 
 class Gateways:
 
@@ -39,6 +41,8 @@ class Gateways:
             dbs.add(Gateway(uid=gateway.uid, name=gateway.name, configs=default_config))
             dbs.commit()
     
+        Logger.init_gateway(gateway.uid)
+
         cls.init_gateway(gateway.uid)
 
     @classmethod
@@ -52,9 +56,9 @@ class Gateways:
             try:
                 cls.init_reader(gateway, reader)
             except Exception as e:
-                print(f"Could not initialize reader: {e}")
+                logging.warning(f"Could not initialize reader: {e}")
         
-        print(f" + {gateway_uid} gateway loaded !")
+        logging.info(f" + {gateway_uid} gateway loaded !")
 
     @classmethod
     def init_reader(cls, gateway, reader):

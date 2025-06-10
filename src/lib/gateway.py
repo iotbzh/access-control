@@ -1,3 +1,4 @@
+from src.logger import Logger
 from src.configs import Configs
 
 class BaseGateway:
@@ -56,3 +57,7 @@ class BaseGateway:
     @classmethod
     def get_var(cls, var):
         return Configs.get_gateway_var(cls.uid, var)
+    
+    @classmethod
+    def logger(cls):
+        return Logger.get_gateway(cls.uid)

@@ -1,14 +1,15 @@
 from flask import Flask, Response, send_file, render_template, request, redirect, url_for, flash, jsonify, current_app, sessions
 from flask_migrate import Migrate, upgrade
-import threading
-import time
 import os
 from flask_socketio import SocketIO
-from sqlalchemy import create_engine, func, desc
-from sqlalchemy_utils import database_exists, create_database
+from sqlalchemy import func, desc
 from dotenv import load_dotenv
 from io import BytesIO
 from datetime import datetime
+
+# Init logger after all logger init from external modules
+from src.logger import Logger
+Logger.init()
 
 from src.models import db, dbs, User, Role, Badge, Reader, Log, Plugin
 from src.auth import is_admin, login_user, login_required, logout_user, current_user, admin_required
@@ -24,6 +25,7 @@ from src.lib.reader import BaseReader
 from src.access import access_control
 from src.addons import Addons
 
+# Import all controllers
 from src.controllers.users import bp as users_controller
 from src.controllers.badges import bp as badges_controller
 from src.controllers.readers import bp as readers_controller
@@ -40,7 +42,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URI", "sqlite:///database.sqlite") #f'mysql://root:root@172.17.0.2/access_control'
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URI", "sqlite:///database.sqlite")
 
 # Add references to app
 Gateways.app = app
@@ -73,8 +75,10 @@ def safe_url_for(endpoint, **values):
     except:
         return None
 
+# Make the safe_url_for function available inside templates
 app.jinja_env.globals['safe_url_for'] = safe_url_for
 
+# With app context add global variables for templates
 @app.context_processor
 def inject_globals():
     plugin_instances = Plugins.plugins
@@ -152,7 +156,6 @@ def logs_export():
     logs = dbs.execute(db.select(Log, User).join(User, isouter=True)).all()
     formated_logs = []
     for log, user in logs:
-        print(log, user)
         formated_logs.append(f"[ {log.date_time} ] {user.name if user else '-'} ({log.badge_uid}) {log.result} on reader {log.reader_id} ({log.reason})".encode())
     return  send_file(
         BytesIO(b"\n".join(formated_logs)), 
@@ -161,6 +164,7 @@ def logs_export():
         mimetype='text/txt'
     )
 
+# This route if for tests
 @app.route("/tests/access/<gateway_uid>/<reader_id>/<badge_uid>")
 def tests_access(gateway_uid, reader_id, badge_uid):
     gateway = Gateways.get(gateway_uid)
