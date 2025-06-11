@@ -37,10 +37,10 @@
             <input name="gateway-{{config}}" 
                     {% if reader_annotations[config].__name__ == "str" %}
                         class="form-control" type="text"
-                        value="{{ reader.gateway_configs.get(config) }}"
+                        value="{{ reader.gateway_configs.get(config) or '' }}"
                     {% elif reader_annotations[config].__name__ == "int" %}
                         class="form-control" type="number"
-                        value="{{ reader.gateway_configs.get(config) }}"
+                        value="{{ reader.gateway_configs.get(config) or 0 }}"
                     {% elif reader_annotations[config].__name__ == "bool" %}
                         type="checkbox"
                         {% if reader.gateway_configs.get(config) %}checked{% endif %}
