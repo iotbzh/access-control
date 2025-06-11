@@ -42,7 +42,7 @@
             {% for log, reader_name in logs %}
             <tr>
                 <td>{{ log.id }}</td>
-                <td>{{ log.date_time }}</td>
+                <td>{{ log.date_time.strftime("%d-%m-%Y %H:%M:%S") }}</td>
                 <td>{{ log.user_name or '-' }}</td>
                 <td>{{ log.badge_uid or '-' }}</td>
                 <td>
