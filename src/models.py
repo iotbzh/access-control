@@ -65,7 +65,7 @@ class Log(db.Model):
     __tablename__ = 'logs'
 
     id = db.Column(db.Integer, primary_key=True)
-    date_time = db.Column(db.DateTime, default=datetime.utcnow)
+    date_time = db.Column(db.DateTime, default=datetime.now)
     reader_id = db.Column(db.Integer, db.ForeignKey('readers.id'))
     badge_uid = db.Column(db.String(32))
     user_name = db.Column(db.String(100))
