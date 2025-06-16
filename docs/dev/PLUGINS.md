@@ -61,3 +61,15 @@ def index():
     return Plugin.get_var("message")
 ```
 
+## Links in navbar
+
+To add links in the navbar, you can use the `navlinks` attribute
+
+`plugins/hello/__init__.py`
+```py
+class Plugin(BasePlugin):
+    ...
+    navlinks = {
+        "Hello", "/hello"
+    }
+```

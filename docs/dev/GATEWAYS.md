@@ -29,6 +29,7 @@ class Gateway(BaseGateway):
     @staticmethod
     def connect(reader):
         print("Connecting to", reader.__class__)
+        return True # Return True if reader connected
 ```
 
 ## Disconnecting the reader
