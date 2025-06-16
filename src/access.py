@@ -43,7 +43,7 @@ def access_control(gateway, reader_instance, badge_uid):
     user = dbs.execute(db.select(User).where(User.id == badge.user_id)).scalar_one_or_none()
 
     if not user:
-        log_access(reader.id, badge_uid, None, badge.user_id, f"{badge.guest_name or ""} - {badge.company_name or ""}", "denied", "Badge not assigned")
+        log_access(reader.id, badge_uid, None, badge.user_id, f"{badge.guest_name or ''} - {badge.company_name or ''}", "denied", "Badge not assigned")
         logging.debug("Access refused. Badge not assigned.")
         gateway.event(reader_instance, False, badge_uid)
         return False
@@ -52,17 +52,17 @@ def access_control(gateway, reader_instance, badge_uid):
     now_time = timedelta(hours=now.hour, minutes=now.minute, seconds=now.second)
 
     if not badge.is_active:
-        log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ""} - {badge.company_name or ""}", "denied", "Inactive Badge")
+        log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ''} - {badge.company_name or ''}", "denied", "Inactive Badge")
         logging.debug("Access refused. Inactive Badge.")
         gateway.event(reader_instance, False, badge_uid)
         return False
     elif badge.deactivation_date and badge.deactivation_date < now:
-        log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ""} - {badge.company_name or ""}", "denied", "Expired badge")
+        log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ''} - {badge.company_name or ''}", "denied", "Expired badge")
         logging.debug("Access refused. Expired badge.")
         gateway.event(reader_instance, False, badge_uid)
         return False
     elif not user.is_active:
-        log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ""} - {badge.company_name or ""}", "denied", "Inactive user")
+        log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ''} - {badge.company_name or ''}", "denied", "Inactive user")
         logging.debug("Access refused. Inactive user.")
         gateway.event(reader_instance, False, badge_uid)
         return False
@@ -73,26 +73,26 @@ def access_control(gateway, reader_instance, badge_uid):
     weekday = datetime.now().weekday()
 
     if str(weekday) not in role.access_days:
-        log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ""} - {badge.company_name or ""}", "denied", "Out of access days")
+        log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ''} - {badge.company_name or ''}", "denied", "Out of access days")
         logging.debug("Access refused. Out of access days.")
         gateway.event(reader_instance, False, badge_uid)
         return False
 
     if access_start is not None and access_end is not None:
         if not (access_start <= now_time <= access_end):
-            log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ""} - {badge.company_name or ""}", "denied", "Out of access time")
+            log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ''} - {badge.company_name or ''}", "denied", "Out of access time")
             logging.debug("Access refused. Out of access time.")
             gateway.event(reader_instance, False, badge_uid)
             return False
     elif access_start is not None:
         if now_time < access_start:
-            log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ""} - {badge.company_name or ""}", "denied", "Out of access time")
+            log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ''} - {badge.company_name or ''}", "denied", "Out of access time")
             logging.debug("Access refused. Out of access time.")
             gateway.event(reader_instance, False, badge_uid)
             return False
     elif access_end is not None:
         if now_time > access_end:
-            log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ""} - {badge.company_name or ""}", "denied", "Out of access time")
+            log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ''} - {badge.company_name or ''}", "denied", "Out of access time")
             logging.debug("Access refused. Out of access time.")
             gateway.event(reader_instance, False, badge_uid)
             return False
@@ -101,12 +101,12 @@ def access_control(gateway, reader_instance, badge_uid):
     role_reader = dbs.execute(db.select(RoleReader).where(RoleReader.role == badge.role).where(RoleReader.reader_id == reader_id)).scalar_one_or_none()
 
     if not role_reader:
-        log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ""} - {badge.company_name or ""}", "denied", "Unauthorized access")
+        log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ''} - {badge.company_name or ''}", "denied", "Unauthorized access")
         logging.debug("Access refused. Unauthorized access.")
         gateway.event(reader_instance, False, badge_uid)
         return False
 
-    log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ""} - {badge.company_name or ""}", "authorized", "OK")
+    log_access(reader.id, badge_uid, user.name, user.id, f"{badge.guest_name or ''} - {badge.company_name or ''}", "authorized", "OK")
     logging.debug("Authorized...")
     gateway.event(reader_instance, True, badge_uid)
     return True
