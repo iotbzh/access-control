@@ -70,6 +70,7 @@ class Log(db.Model):
     badge_uid = db.Column(db.String(32))
     user_name = db.Column(db.String(100))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    guest = db.Column(db.String(128))
     result = db.Column(db.String(16))
     reason = db.Column(db.String(255))
 

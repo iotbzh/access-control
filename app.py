@@ -156,7 +156,7 @@ def logs_export():
     logs = dbs.execute(db.select(Log, User).join(User, isouter=True)).all()
     formated_logs = []
     for log, user in logs:
-        formated_logs.append(f"[ {log.date_time} ] {user.name if user else '-'} ({log.badge_uid}) {log.result} on reader {log.reader_id} ({log.reason})".encode())
+        formated_logs.append(f"[ {log.date_time} ] {user.name if user else '-'} {log.guest or ''} ({log.badge_uid}) {log.result} on reader {log.reader_id} ({log.reason})".encode())
     return  send_file(
         BytesIO(b"\n".join(formated_logs)), 
         as_attachment=True,

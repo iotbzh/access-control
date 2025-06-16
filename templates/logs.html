@@ -32,6 +32,7 @@
                 <th>ID</th>
                 <th>Date/Time</th>
                 <th>User</th>
+                <th>Guest</th>
                 <th>Badge</th>
                 <th>Result</th>
                 <th>Reader</th>
@@ -44,6 +45,7 @@
                 <td>{{ log.id }}</td>
                 <td>{{ log.date_time.strftime("%d-%m-%Y %H:%M:%S") }}</td>
                 <td>{{ log.user_name or '-' }}</td>
+                <td>{{ log.guest or '-' }}</td>
                 <td>{{ log.badge_uid or '-' }}</td>
                 <td>
                     <span class="badge bg-{{ 'success' if log.result=='authorized' else 'danger' }}">
