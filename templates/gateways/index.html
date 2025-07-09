@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Gateways</h1>
+
+<table class="table table-striped align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>UID</th>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for gateway in gateways %}
+        <tr>
+            <td>{{ gateway['uid'] }}</td>
+            <td>{{ gateway['name'] }}</td>
+            <td class="d-flex gap-1">
+                <a href="{{ url_for('gateways.view', gateway_uid=gateway["uid"]) }}" class="btn btn-sm btn-warning" title="Edit" data-bs-toggle="tooltip" data-bs-title="Edit">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

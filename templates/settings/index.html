@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Settings</h1>
+        <form id="settings" method="post">
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check"></i> Save
+            </button>
+        </form>
+    </div>
+
+    <!-- General Settings -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 class="mb-0 h5">General</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="enable-add-user" name="enable-add-user" {% if settings.enable_add_user %}checked{% endif %} form="settings">
+                <label class="form-check-label" for="enable-add-user">
+                    Enable User Add
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- LDAP Settings -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 class="mb-0 h5">LDAP</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="ldap-enabled" name="ldap-enabled" {% if settings.ldap_enabled %}checked{% endif %} form="settings">
+                <label class="form-check-label" for="ldap-enabled">
+                    Enabled
+                </label>
+                {% if settings.ldap_enabled %}
+                <div class="form-text">LDAP users will be updated every day.</div>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="ldap-server" class="form-label">Server</label>
+                <input type="text" class="form-control" id="ldap-server" name="ldap-server"
+                       placeholder="ldap://myserver.local" value="{{ settings.ldap_server or '' }}" form="settings">
+            </div>
+            <div class="mb-3">
+                <label for="ldap-base" class="form-label">Search Base</label>
+                <input type="text" class="form-control" id="ldap-base" name="ldap-base"
+                       placeholder="ou=people, dc=myldap, dc=local" value="{{ settings.ldap_base or '' }}" form="settings">
+            </div>
+            <div class="mb-3">
+                <label for="ldap-admin-filter" class="form-label">Admin Filter</label>
+                <input type="text" class="form-control" id="ldap-admin-filter" name="ldap-admin-filter"
+                       placeholder="(&(memberof=cn=badgeadmin,ou=groups,dc=myldap,dc=local)(mail=%s))" value="{{ settings.ldap_admin_filter or '' }}" form="settings">
+            </div>
+            <form action="ldap_retrieve" method="post">
+                <button type="submit" class="btn btn-secondary" {% if not settings.ldap_enabled %}disabled{% endif %}>
+                    Retrieve
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- OpenID Settings -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 class="mb-0 h5">OpenID</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="openid-enabled" name="openid-enabled" {% if settings.openid_enabled %}checked{% endif %} form="settings">
+                <label class="form-check-label" for="openid-enabled">
+                    Enabled
+                </label>
+            </div>
+            <div class="mb-3">
+                <label for="openid-client-id" class="form-label">Client ID</label>
+                <input type="text" class="form-control" id="openid-client-id" name="openid-client-id"
+                       value="{{ settings.openid_client_id or '' }}" form="settings">
+            </div>
+            <div class="mb-3">
+                <label for="openid-client-secret" class="form-label">Client Secret</label>
+                <input type="text" class="form-control" id="openid-client-secret" name="openid-client-secret"
+                       value="{{ settings.openid_client_secret or '' }}" form="settings">
+            </div>
+            <div class="mb-3">
+                <label for="openid-metadata-url" class="form-label">Server Metadata URL</label>
+                <input type="text" class="form-control" id="openid-metadata-url" name="openid-metadata-url"
+                       placeholder="https://myserver.local/realms/local/.well-known/openid-configuration"
+                       value="{{ settings.openid_metadata_url or '' }}" form="settings">
+            </div>
+        </div>
+    </div>
+
+    <!-- SMTP Settings -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="mb-0 h5">SMTP</h3>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="smtp-server" class="form-label">Server</label>
+                <input type="text" class="form-control" id="smtp-server" name="smtp-server"
+                       value="{{ settings.smtp_server or '' }}" form="settings">
+            </div>
+            <div class="mb-3">
+                <label for="smtp-from-email" class="form-label">From Email</label>
+                <input type="text" class="form-control" id="smtp-from-email" name="smtp-from-email"
+                       value="{{ settings.smtp_from_email or '' }}" form="settings">
+            </div>
+            <form action="test_email" method="post" class="d-flex gap-2">
+                <input type="text" class="form-control" name="to_email" placeholder="Recipient">
+                <button type="submit" class="btn btn-secondary">
+                    Test
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

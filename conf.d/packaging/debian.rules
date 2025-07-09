@@ -1,0 +1,95 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Uncomment this to turn on verbose mode.
+# export DH_VERBOSE=1
+# export DH_OPTIONS=-v
+
+# These are used for cross-compiling and for saving the configure script
+# from having to guess our platform (since we know it already)
+DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+NAME=access-control
+BINARY_NAME=access-control
+
+INSTALL_BIN_DIR=/opt/access-control
+
+DEB_BASE_DIR=debian/$(NAME)
+DEB_INSTALL_BIN_DIR=$(DEB_BASE_DIR)$(INSTALL_BIN_DIR)
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	touch configure-stamp
+
+build: build-stamp
+build-stamp: configure-stamp
+	dh_testdir
+
+	# Get version of the package from the .dsc file
+	$(eval DSC_FILE_PATH := $(shell find ../SOURCES.DEB -maxdepth 1 -name "*.dsc"))
+	$(eval FULL_VERSION=$(shell grep "^Version" $(DSC_FILE_PATH) | cut -d' ' -f2))
+	$(eval VERSION=$(shell echo $(FULL_VERSION) | cut -d- -f1))
+	$(eval SUBVERSION=$(shell echo $(FULL_VERSION) | cut -d- -f2))
+
+clean:
+	#dh_testdir
+	dh_testroot
+	rm -f configure-stamp build-stamp
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs
+
+	# Add here commands to install the package into debian/redpesk-cli
+	install -Dd $(DEB_INSTALL_BIN_DIR)
+	install app.py $(DEB_INSTALL_BIN_DIR)
+	install .env.example $(DEB_INSTALL_BIN_DIR)
+
+	install -d $(DEB_BASE_DIR)/etc/systemd/system
+	install conf.d/systemd/access-control.service $(DEB_BASE_DIR)/etc/systemd/system/access-control.service
+
+	# Recursive install
+	find .addons -type f -exec install -D "{}" "$(DEB_INSTALL_BIN_DIR)/{}" \;
+	find gateways -type f -exec install -D "{}" "$(DEB_INSTALL_BIN_DIR)/{}" \;
+	find logs -type f -exec install -D "{}" "$(DEB_INSTALL_BIN_DIR)/{}" \;
+	find migrations -type f -exec install -D "{}" "$(DEB_INSTALL_BIN_DIR)/{}" \;
+	find plugins -type f -exec install -D "{}" "$(DEB_INSTALL_BIN_DIR)/{}" \;
+	find src -type f -exec install -D "{}" "$(DEB_INSTALL_BIN_DIR)/{}" \;
+	find static -type f -exec install -D "{}" "$(DEB_INSTALL_BIN_DIR)/{}" \;
+	find templates -type f -exec install -D "{}" "$(DEB_INSTALL_BIN_DIR)/{}" \;
+	find tests -type f -exec install -D "{}" "$(DEB_INSTALL_BIN_DIR)/{}" \;
+
+	# Move all files in their corresponding package
+	dh_install -a --sourcedir $(DEB_BASE_DIR)
+
+	# Check the missing files
+	dh_missing --list-missing
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+	dh_installexamples
+	dh_installman
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs -V
+	dh_installdeb
+	#dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install

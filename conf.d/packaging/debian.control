@@ -1,0 +1,25 @@
+Source: access-control
+Section: devel
+Priority: optional
+Maintainer: Alex Zalo <alex.zalo@iot.bzh>
+Build-Depends:
+ debhelper (>= 10),
+Standards-Version: 4.1.2
+Homepage: https://github.com/iotbzh/access-control
+
+Package: access-control
+Architecture: any
+Depends: 
+    python3-alembic,
+    python3-authlib,
+    python3-flask,
+    python3-flask-migrate,
+    python3-flask-socketio,
+    python3-flask-sqlalchemy,
+    python3-pytest,
+    python3-dotenv,
+    python3-requests,
+    python3-schedule,
+    python3-sqlalchemy,
+    python3-ldap,
+    python3-eventlet

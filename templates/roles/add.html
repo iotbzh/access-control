@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Add a role</h1>
+    <form method="post" class="row g-3">
+        <div class="col-md-12">
+            <label for="name" class="form-label">Name :</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+
+        <div class="col-md-4">
+            <label for="access_start" class="form-label">Access start (optional) :</label>
+            <input type="time" class="form-control" id="access_start" name="access_start">
+        </div>
+
+        <div class="col-md-4">
+            <label for="access_end" class="form-label">Access end (optional) :</label>
+            <input type="time" class="form-control" id="access_end" name="access_end">
+        </div>
+
+        <div class="col-md-4">
+            <h6>Access Days</h6>
+            <div class="d-flex gap-2 flex-wrap">
+                {% for day in ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] %}
+                <div>
+                    <input type="checkbox" class="form-check-input" id="day_access_{{day}}" name="access_days" value="{{ loop.index0 }}">
+                    <label for="day_access_{{day}}"" class="form-check-label">{{ day|capitalize }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="mb-3 form-check form-switch">
+            <input type="checkbox" name="is_active" class="form-check-input" checked>
+            <label class="form-check-label">Activate</label>
+        </div>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-success">Add</button>
+            <a href="{{ url_for('roles.index') }}" class="btn btn-secondary ms-2">Back</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

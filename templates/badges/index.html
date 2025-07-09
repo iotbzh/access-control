@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="m-0">Badges</h1>
+    <a href="{{ url_for('badges.add') }}" class="btn btn-success">
+        <i class="bi bi-plus-lg"></i> Add
+    </a>
+</div>
+
+<form method="get" class="row g-3 mb-3">
+    <div class="col-auto">
+        <select name="user_id" class="form-select">
+            <option value="">-- User --</option>
+            {% for user in users %}
+            <option value="{{ user['id'] }}" {% if user_id and user['id'] == user_id %}selected{% endif %}>{{ user['name'] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-auto">
+        <select name="is_active" class="form-select">
+            <option value="">-- Status --</option>
+            <option value="1" {% if is_active == '1' %}selected{% endif %}>Active</option>
+            <option value="0" {% if is_active == '0' %}selected{% endif %}>Inactive</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="{{ url_for('badges.index') }}" class="btn btn-secondary">Reset</a>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>UID</th>
+            <th>User</th>
+            <th>Active</th>
+            <th>Deactivation date</th>
+            <th>Guest Name</th>
+            <th>Company Name</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for badge, user_name, role_name in badges %}
+        <tr>
+            <td>{{ badge['id'] }}</td>
+            <td>{{ badge['uid'] }}</td>
+            <td>{{ user_name or 'Aucun' }}</td>
+            <td>
+                <span class="badge bg-{{ 'success' if badge['is_active'] else 'danger' }}">
+                    {{ 'Yes' if badge['is_active'] else 'No' }}
+                </span>
+            </td>
+            <td>{{ badge['deactivation_date'] or '-' }}</td>
+            <td>{{ badge['guest_name'] or '-' }}</td>
+            <td>{{ badge['company_name'] or '-' }}</td>
+            <td>{{ role_name }}</td>
+            <td>
+                <a href="{{ url_for('badges.edit', badge_id=badge['id']) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" data-bs-title="Edit">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+                <form method="POST" action="{{ url_for('badges.delete', badge_id=badge['id']) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this badge ?');">
+                    <button type="submit" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-title="Delete">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

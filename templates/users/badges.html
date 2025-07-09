@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="m-0">Badges of {{user.name}}</h1>
+    <a href="{{ url_for('users.index') }}" class="btn btn-secondary">
+        Back
+    </a>
+</div>
+
+<table class="table table-striped">
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>UID</th>
+            <th>Active</th>
+            <th>Deactivation date</th>
+            <th>Guest Name</th>
+            <th>Company Name</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for badge, role_name in badges %}
+        <tr>
+            <td>{{ badge['id'] }}</td>
+            <td>{{ badge['uid'] }}</td>
+            <td>
+                <span class="badge bg-{{ 'success' if badge['is_active'] else 'danger' }}">
+                    {{ 'Yes' if badge['is_active'] else 'No' }}
+                </span>
+            </td>
+            <td>{{ badge['deactivation_date'] or '-' }}</td>
+            <td>{{ badge['guest_name'] or '-' }}</td>
+            <td>{{ badge['company_name'] or '-' }}</td>
+            <td>{{ role_name }}</td>
+            <td>
+                <a href="{{ url_for('badges.edit', badge_id=badge['id']) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" data-bs-title="Edit">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+                <form method="POST" action="{{ url_for('badges.delete', badge_id=badge['id']) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this badge ?');">
+                    <button type="submit" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-title="Delete">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

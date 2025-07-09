@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="mb-4">Status</h1>
+<div class="table-responsive">
+    <table class="table table-striped align-middle" id="lecteurs-table">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reader in readers %}
+            <tr id="row-{{ reader.id }}">
+                <td>{{ reader.id }}</td>
+                <td>{{ reader.name }}</td>
+                <td>{{ reader.description }}</td>
+                <td>
+                    <span class="badge bg-warning" id="status-{{ reader.id }}">
+                        ...
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Socket.IO client -->
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+<script>
+    var socket = io();
+
+    socket.on("connect", () => {
+        setInterval(() => {
+            socket.emit("updateReadersStatus")
+        }, 1000)
+    })
+    socket.on('readersStatus', (data) => {
+        for (const [id, status] of Object.entries(data)) {
+            updateStatus(id, status)
+        }
+    });
+
+    function updateStatus(readerId, status) {
+        let badge = document.getElementById("status-" + readerId);
+        badge.textContent = status ? "Online" : "Offline"
+        badge.className = "badge bg-" + (status ? "success" : "danger");
+    }
+</script>
+{% endblock %}

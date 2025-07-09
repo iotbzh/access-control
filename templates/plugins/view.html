@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Plugin: {{plugin.uid}}</h1>
+    <form id="configs" method="post">
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-check"></i> Save
+        </button>
+    </form>
+</div>
+
+<h3>Configs:</h3>
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for var in plugin_config_vars %}
+        <tr>
+            <td>{{ var }}</td>
+            <td>
+                <input name="{{var}}"  form="configs"
+                    {% if plugin_config_vars[var].__name__ == "str" %}
+                        type="text"
+                        value="{{ plugin.configs.get(var) }}"
+                    {% elif plugin_config_vars[var].__name__ == "int" %}
+                        type="number"
+                        value="{{ plugin.configs.get(var) }}"
+                    {% elif plugin_config_vars[var].__name__ == "bool" %}
+                        type="checkbox"
+                        {% if plugin.configs.get(var) %}checked{% endif %}
+                    {% else %}
+                        type="text"
+                    {% endif %}
+                />
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

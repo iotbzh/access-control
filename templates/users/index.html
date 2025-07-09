@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="m-0">Users</h1>
+    {% if enable_add_user %}
+    <a href="{{ url_for('users.add') }}" class="btn btn-success">
+        <i class="bi bi-plus-lg"></i> Add
+    </a>
+    {% endif %}
+</div>
+
+<form method="get" class="row g-3 mb-3">
+    <div class="col-auto">
+        <select name="is_active" class="form-select">
+            <option value="">-- Status --</option>
+            <option value="1" {% if is_active == '1' %}selected{% endif %}>Active</option>
+            <option value="0" {% if is_active == '0' %}selected{% endif %}>Inactive</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="{{ url_for('users.index') }}" class="btn btn-secondary">Reset</a>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>UID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Badges</th>
+                <th>Active</th>
+                <th>Creation Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user, badges in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.uid }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ badges }}</td>
+                <td>
+                    <span class="badge bg-{{ 'success' if user.is_active else 'danger' }}">
+                        {{ 'Yes' if user.is_active else 'No' }}
+                    </span>
+                </td>
+                <td>{{ user.created_at }}</td>
+                <td>
+                    <a href="{{ url_for('users.badges', user_id=user.id) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-title="Badges">
+                        <i class="bi bi-credit-card-2-front-fill"></i>
+                    </a>
+                    <a href="{{ url_for('users.edit', user_id=user.id) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" data-bs-title="Edit">
+                        <i class="bi bi-pencil-fill"></i>
+                    </a>
+                    <form method="POST" action="{{ url_for('users.delete', user_id=user.id) }}" style="display:inline;"
+                        onsubmit="return confirm('Are you sure you want to delete this user ?');">
+                        <button type="submit" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-title="Delete">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

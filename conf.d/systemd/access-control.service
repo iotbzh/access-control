@@ -1,0 +1,14 @@
+[Unit]
+Description=Access Control
+After=network-online.target
+Wants=network-online.target systemd-networkd-wait-online.service
+
+[Service]
+Restart=always
+RestartSec=5s
+
+WorkingDirectory=/opt/access-control
+ExecStart=python3 /opt/access-control/app.py
+
+[Install]
+WantedBy=multi-user.target

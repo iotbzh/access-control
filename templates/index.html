@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Access Control - Dashboard</h1>
+    <div class="row g-4">
+        {% if is_admin %}
+        <div class="col-md-6 col-lg-4">
+            <a href="{{ url_for('users.index') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people-fill fs-1"></i>
+                        <h5 class="card-title mt-2">Users</h5>
+                        <p class="card-text">Add, edit and remove users.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="{{ url_for('badges.index') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-credit-card-2-front-fill fs-1"></i>
+                        <h5 class="card-title mt-2">Badges</h5>
+                        <p class="card-text">Add, edit and remove badges.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="{{ url_for('readers.index') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-door-open-fill fs-1"></i>
+                        <h5 class="card-title mt-2">Readers</h5>
+                        <p class="card-text">Add, edit and remove readers.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="{{ url_for('roles.index') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-person-badge-fill fs-1"></i>
+                        <h5 class="card-title mt-2">Roles</h5>
+                        <p class="card-text">Add, edit and remove roles.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="{{ url_for('logs') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-clock-history fs-1"></i>
+                        <h5 class="card-title mt-2">Access logs</h5>
+                        <p class="card-text">See passed a card and the result.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="{{ url_for('gateways.index') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-boxes fs-1"></i>
+                        <h5 class="card-title mt-2">Gateways</h5>
+                        <p class="card-text">Manage gateways for readers</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="{{ url_for('plugins.index') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-braces fs-1"></i>
+                        <h5 class="card-title mt-2">Plugins</h5>
+                        <p class="card-text">Manage custom plugins</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endif %}
+        <div class="col-md-6 col-lg-4">
+            <a href="{{ url_for('status') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-broadcast-pin fs-1"></i>
+                        <h5 class="card-title mt-2">Status</h5>
+                        <p class="card-text">See in realtime the readers status.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="{{ url_for('map.index') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-map-fill fs-1"></i>
+                        <h5 class="card-title mt-2">Map</h5>
+                        <p class="card-text">A map that shows status in realtime</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <h1 class="mb-4 mt-4">Plugins</h1>
+    <div class="row g-4">
+        {% for plugin in plugins %}
+        {% set url = safe_url_for(plugin.uid + '.index') %}
+        {% if url %}
+        <div class="col-md-6 col-lg-4">
+            <a href="{{ url }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-columns fs-1 text-secondary"></i>
+                        <h5 class="card-title mt-2">{{plugin.uid.replace("-", " ").replace("_", " ") | capitalize}}</h5>
+                        <p class="card-text">{{ plugin.uid }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

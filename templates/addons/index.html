@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="m-0">Addons</h1>
+    <a href="{{ url_for('addons.import_') }}" class="btn btn-success">
+        <i class="bi bi-plus-lg"></i> Import
+    </a>
+</div>
+
+<table class="table table-striped align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>UID</th>
+            <th>Git URL</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for addon in addons %}
+        <tr>
+            <td>{{ addon['uid'] }}</td>
+            <td>{{ addon['git_url'] }}</td>
+            <td class="d-flex gap-1">
+                <form action="{{ url_for('addons.update', addon_uid=addon['uid']) }}" method="post">
+                    <button class="btn btn-sm btn-warning" title="Update" data-bs-toggle="tooltip" data-bs-title="Update">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </form>
+                <form method="POST" action="{{ url_for('addons.delete', addon_uid=addon['uid']) }}" onsubmit="return confirm('Are you sure you want to delete this addon ?');">
+                    <button type="submit" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-title="Delete">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

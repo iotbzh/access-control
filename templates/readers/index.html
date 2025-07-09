@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="m-0">Readers</h1>
+    <a href="{{ url_for('readers.add') }}" class="btn btn-success">
+        <i class="bi bi-plus-lg"></i> Add
+    </a>
+</div>
+
+<form method="get" class="row g-3 mb-3">
+    <div class="col-auto">
+        <select name="is_active" class="form-select">
+            <option value="">-- Status --</option>
+            <option value="1" {% if is_active == '1' %}selected{% endif %}>Active</option>
+            <option value="0" {% if is_active == '0' %}selected{% endif %}>Inactive</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="{{ url_for('readers.index') }}" class="btn btn-secondary">Reset</a>
+    </div>
+</form>
+
+<table class="table table-striped align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>State</th>
+            <th>Gateway</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for reader in readers %}
+        <tr>
+            <td>{{ reader['name'] }}</td>
+            <td>{{ reader['description'] or '-' }}</td>
+            <td>
+                <span class="badge bg-{{ 'success' if reader['is_active'] else 'danger' }}">
+                    <i class="bi bi-{{ 'check-circle-fill' if reader['is_active'] else 'x-circle-fill' }}"></i>
+                    {{ 'Active' if reader['is_active'] else 'Inactive' }}
+                </span>
+            </td>
+            <td>
+                {% set is_online = readers_instance.get(reader.id).is_online if readers_instance.get(reader.id) else False %}
+                <span class="badge bg-{{ 'success' if is_online else 'secondary' }}">
+                    <i class="bi bi-{{ 'wifi' if is_online else 'wifi-off' }}"></i>
+                    {{ 'Online' if is_online else 'Offline' }}
+                </span>
+            </td>
+            <td>
+                {{ reader["gateway"] }}
+            </td>
+            <td class="d-flex gap-1">
+                <a href="{{ url_for('readers.edit', reader_id=reader['id']) }}" class="btn btn-sm btn-warning" title="Edit"  data-bs-toggle="tooltip" data-bs-title="Edit">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+                <form method="POST" action="{{ url_for('readers.delete', reader_id=reader['id']) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this reader ?')" title="Delete" data-bs-toggle="tooltip" data-bs-title="Delete">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
