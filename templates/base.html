@@ -65,13 +65,6 @@
                                     <a class="nav-link" href="{{link_url}}">{{link_name}}</a>
                                 </li>
                             {% endfor %}
-                            {% if is_admin %}
-                            {% for link_name, link_url in plugin.admin_navlinks.items() %}
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{link_url}}">{{link_name}}</a>
-                                </li>
-                            {% endfor %}
-                            {% endif %}
                         {% endfor %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('status') }}">Status</a>
