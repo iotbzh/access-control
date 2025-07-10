@@ -9,6 +9,7 @@ class Action:
             def wraps(*args, **kwargs):
                 return func(*args, **kwargs)
             self.set_func_attr(wraps)
+            wraps.admin = True
             wraps.is_action = True
             wraps.__name__ = func.__name__
             return wraps
