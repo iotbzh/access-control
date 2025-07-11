@@ -18,6 +18,7 @@ def login_required(func):
             return redirect(url_for("login", next=request.path))
         return func(*args, **kwargs)
     wrap.__name__ = func.__name__
+    wrap.auth_level = "login"
     return wrap
 
 def admin_required(func):
@@ -31,6 +32,7 @@ def admin_required(func):
         
         return redirect(url_for("index"))
     wrap.__name__ = func.__name__
+    wrap.auth_level = "admin"
     return wrap
 
 def is_admin(user):

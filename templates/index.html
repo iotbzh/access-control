@@ -111,17 +111,20 @@
         {% for plugin in plugins %}
         {% set url = safe_url_for(plugin.uid + '.index') %}
         {% if url %}
-        <div class="col-md-6 col-lg-4">
-            <a href="{{ url }}" class="text-decoration-none">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body text-center">
-                        <i class="bi bi-columns fs-1 text-secondary"></i>
-                        <h5 class="card-title mt-2">{{plugin.uid.replace("-", " ").replace("_", " ") | capitalize}}</h5>
-                        <p class="card-text">{{ plugin.uid }}</p>
+            {% set auth_level = current_app.view_functions.get(plugin.uid + '.index').auth_level %}
+            {% if auth_level in [Undefined, "login"] or (is_admin and auth_level == "admin") %}
+            <div class="col-md-6 col-lg-4">
+                <a href="{{ url }}" class="text-decoration-none">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="bi bi-columns fs-1 text-secondary"></i>
+                            <h5 class="card-title mt-2">{{plugin.uid.replace("-", " ").replace("_", " ") | capitalize}}</h5>
+                            <p class="card-text">{{ plugin.uid }}</p>
+                        </div>
                     </div>
-                </div>
-            </a>
-        </div>
+                </a>
+            </div>
+            {% endif %}
         {% endif %}
         {% endfor %}
     </div>

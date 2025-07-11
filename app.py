@@ -124,7 +124,7 @@ def status():
 @app.route('/')
 def index():
     plugins = Plugin.query.all()
-    return render_template('index.html', user=current_user, plugins=plugins)
+    return render_template('index.html', user=current_user, plugins=plugins, current_app=current_app)
 
 # TODO: Move to logs controller
 @app.route('/logs/<reader_id>')
