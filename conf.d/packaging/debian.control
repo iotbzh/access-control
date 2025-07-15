@@ -22,4 +22,5 @@ Depends:
     python3-schedule,
     python3-sqlalchemy,
     python3-ldap,
-    python3-eventlet
+    python3-gevent,
+    python3-gevent-websocket
