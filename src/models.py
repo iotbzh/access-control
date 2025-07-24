@@ -61,7 +61,7 @@ class Badge(db.Model):
     guest_name = db.Column(db.String(64))
     company_name = db.Column(db.String(64))
     role = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
-    revoked = db.Column(db.Boolean, server_default="0")
+    revoked = db.Column(db.Boolean, default=False, server_default="0")
 
 
 class Log(db.Model):

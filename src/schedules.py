@@ -3,9 +3,10 @@ import schedule
 import time
 from datetime import datetime, timedelta
 
-from src.models import db, dbs, Log, Badge
+from src.models import db, dbs, Log, Badge, User
 from src.settings import Settings
 from src.ldap import ldap_retrieve_users
+from src.smtp import SMTP
 
 app = None
 
@@ -46,6 +47,12 @@ def init(_app):
         for badge in badges:
             # If badge is active and desactivation date is passed, disable the badge
             if badge.is_active and badge.deactivation_date and datetime.now() > badge.deactivation_date:
+                # Send an email to the assigned user
+                user = dbs.execute(db.select(User).where(User.id == badge.user_id)).scalar_one_or_none()
+
+                print(user)
+                if user:
+                    SMTP.send_to([user.email], "[Access Control] Badge has been disabled", f"One of your badges has been automatically disabled.\n\n - UID: {badge.uid}\n - Guest Name: {badge.guest_name}\n - Company Name: {badge.company_name}")
                 dbs.execute(db.update(Badge).where(Badge.id == badge.id).values(is_active=False))
         dbs.commit()
 
