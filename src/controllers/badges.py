@@ -19,7 +19,7 @@ def index():
     if is_active in ("0", "1"):
         query = query.where(Badge.is_active == is_active)
     
-    query = query.join(User).join(Role)
+    query = query.where(Badge.revoked == False).join(User).join(Role)
     badges = db.session.execute(query).all()
     users = User.query.all()
 
@@ -107,3 +107,10 @@ def delete(badge_id):
     except Exception as e:
         dbs.rollback()
         return f"Erreur lors de la suppression : {str(e)}", 500
+
+@bp.route('/revoke/<int:badge_id>', methods=['POST'])
+@admin_required
+def revoke(badge_id):
+    dbs.execute(db.update(Badge).where(Badge.id == badge_id).values(revoked=True))
+    dbs.commit()
+    return redirect(url_for('badges.index'))

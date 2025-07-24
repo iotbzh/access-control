@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container py-4">
     <h1 class="mb-4">Edit badge</h1>
-    <form method="post" class="row g-3">
+    <div class="row g-3">
         <div class="col-md-6">
             <label for="uid" class="form-label">UID :</label>
             <input type="text" class="form-control" id="uid" name="uid" value="{{ badge.uid }}" readonly>
@@ -49,10 +49,15 @@
             <input type="text" class="form-control" id="company_name" name="company_name" value="{{ badge.company_name or "" }}">
         </div>
 
-        <div class="col-12">
-            <button type="submit" class="btn btn-success">Save</button>
+        <div class="col-12 d-flex">
+            <form method="post" class="d-inline-block">
+                <button type="submit" class="btn btn-success">Save</button>
+            </form>
             <a href="{{ url_for('badges.index') }}" class="btn btn-secondary ms-2">Back</a>
+            <form class="d-inline-block ms-auto" action="{{ url_for('badges.revoke', badge_id=badge['id']) }}" method="post" onsubmit="return confirm('Are you sure you want to revoke this badge ? It\'s irreversible');">
+                <button type="submit" class="btn btn-danger ms-2">Revoke</button>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
 {% endblock %}
