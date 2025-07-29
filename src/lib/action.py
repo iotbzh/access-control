@@ -8,9 +8,9 @@ class Action:
         def decorator(func):
             def wraps(*args, **kwargs):
                 return func(*args, **kwargs)
-            self.set_func_attr(wraps)
             wraps.admin = True
             wraps.is_action = True
+            self.set_func_attr(wraps)
             wraps.__name__ = func.__name__
             return wraps
         return decorator
