@@ -7,10 +7,6 @@ from dotenv import load_dotenv
 from io import BytesIO
 from datetime import datetime
 
-# Init logger after all logger init from external modules
-from src.logger import Logger
-Logger.init()
-
 from src.models import db, dbs, User, Role, Badge, Reader, Log, Plugin
 from src.auth import is_admin, login_user, login_required, logout_user, current_user, admin_required
 from src.settings import Settings
@@ -37,6 +33,10 @@ from src.controllers.openid import bp as openid_controller
 from src.controllers.map import bp as map_controller
 from src.controllers.actions import bp as actions_controller
 from src.controllers.addons import bp as addons_controller
+
+# Init logger after all logger init from external modules
+from src.logger import Logger
+Logger.init()
 
 load_dotenv()
 
@@ -185,6 +185,8 @@ def on_update():
 def startup():
     with app.app_context():
         upgrade()
+
+        Logger.init_app("access")
 
         Gateways.init_all()
         Plugins.init_all()

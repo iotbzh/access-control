@@ -19,6 +19,7 @@ class ManyLevelsFilter(logging.Filter):
 class Logger:
     log_streams = { }
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    app_logger = None
 
     @classmethod
     def init(cls):
@@ -27,6 +28,7 @@ class Logger:
 
         error_fh = Logger.create_rotating_file_handler("errors")
         error_fh.setLevel(logging.ERROR)
+        error_fh.addFilter(ManyLevelsFilter([logging.ERROR, logging.CRITICAL]))
 
         app_fh = Logger.create_rotating_file_handler("app")
         app_fh.setLevel(logging.INFO)
@@ -36,6 +38,8 @@ class Logger:
         logging.root.addHandler(debug_fh)
         logging.root.addHandler(error_fh)
         logging.root.addHandler(app_fh)
+
+        logging.root.setLevel(logging.DEBUG)
 
         # Adding logging handler for uncaught exceptions in main thread and other threads
         sys.excepthook = cls.log_uncaught_exceptions
@@ -88,11 +92,11 @@ class Logger:
         file_handler = cls.create_rotating_file_handler(f"{type}-{uid}")
         file_handler.setLevel(logging.DEBUG)
 
-        gw_logger = logging.getLogger(f"{type}-{uid}")
-        gw_logger.setLevel(logging.DEBUG)
+        logger = logging.getLogger(f"{type}-{uid}")
+        logger.setLevel(logging.DEBUG)
         
-        gw_logger.addHandler(stream_handler)
-        gw_logger.addHandler(file_handler)
+        logger.addHandler(stream_handler)
+        logger.addHandler(file_handler)
 
     @classmethod
     def init_gateway(cls, uid):
@@ -109,7 +113,7 @@ class Logger:
     @classmethod
     def create_rotating_file_handler(cls, name):
         # Create a rotation log handler that will rotate each Sunday and will keep them for 156 weeks (almost 3 years)
-        fh = logging.handlers.TimedRotatingFileHandler(f'logs/{name}.log', "D", interval=1, backupCount=156)  # TODO: Change D to W6, this is for the tests
+        fh = logging.handlers.TimedRotatingFileHandler(f'logs/{name}.log', "W6", interval=1, backupCount=156)
         fh.setFormatter(cls.formatter)
         # Use custom rotator and namer to get compressed rotated files
         fh.rotator = cls.rotator
