@@ -26,17 +26,17 @@ python3 -m venv venv
 pip install -r requirements.txt
 ```
 
-### Migrations
+### Init database
 
-If you want to edit the `models.py` file, you will need to create migrations
+The 1st time, you need to run migrations, knowing that the first migration include tables creation.
 
 ```bash
-FLASK_MIGRATE=1 flask db migrate
+flask db upgrade
 ```
 
 ### Run the app
 
-No need to use an other WSGI for production, it already uses `eventlet`.  
+No need to use an other WSGI for production, it already uses `eventlet`.
 You will need to create a `.env`, you can use the `.env.example` as example.
 
 ```
@@ -57,4 +57,15 @@ DATABASE_URI=sqlite:/// python3 app.py
 
 ```
 pytest -vs
+```
+
+
+## Development
+
+### Migrations
+
+If you want to edit the `models.py` file, you will need to create migrations
+
+```bash
+FLASK_MIGRATE=1 flask db migrate
 ```
