@@ -1,1 +1,1 @@
-systemctl is-active --quiet access-control && systemctl restart access-control
+systemctl is-active --quiet access-control && systemctl restart access-control || true
