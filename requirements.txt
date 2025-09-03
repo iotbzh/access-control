@@ -10,4 +10,4 @@ Requests==2.32.3
 schedule==1.2.2
 SQLAlchemy==2.0.41
 python-ldap==3.4.4
-eventlet==0.40.0
+gevent==25.5.1

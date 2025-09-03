@@ -49,7 +49,7 @@ Gateways.app = app
 Plugins.app = app
 openid.app = app
 
-socketio.sock = SocketIO(app)
+socketio.sock = SocketIO(app, async_mode='gevent')
 sock = socketio.sock
 
 dev_mode = bool(os.getenv("DEV", False))
@@ -85,11 +85,15 @@ app.jinja_env.globals['safe_url_for'] = safe_url_for
 def inject_globals():
     plugin_instances = Plugins.plugins
     return {
-        "is_admin": is_admin(current_user()), 
+        "is_admin": is_admin(current_user()),
         "is_logged": bool(current_user()),
         "plugin_instances": plugin_instances,
         "dev_mode": dev_mode
     }
+
+@app.route('/livez', methods=['GET', 'HEAD'])
+def livez():
+    return "ok"
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -161,7 +165,7 @@ def logs_export():
     for log, user in logs:
         formated_logs.append(f"[ {log.date_time} ] {user.name if user else '-'} {log.guest or ''} ({log.badge_uid}) {log.result} on reader {log.reader_id} ({log.reason})".encode())
     return  send_file(
-        BytesIO(b"\n".join(formated_logs)), 
+        BytesIO(b"\n".join(formated_logs)),
         as_attachment=True,
         download_name=f'access-logs_{datetime.now().strftime("%d-%m-%Y")}.txt',
         mimetype='text/txt'

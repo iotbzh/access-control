@@ -36,7 +36,7 @@ flask db upgrade
 
 ### Run the app
 
-No need to use an other WSGI for production, it already uses `eventlet`.
+No need to use an other WSGI for production, it already uses `gevent`.
 You will need to create a `.env`, you can use the `.env.example` as example.
 
 ```
