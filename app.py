@@ -49,7 +49,7 @@ Gateways.app = app
 Plugins.app = app
 openid.app = app
 
-socketio.sock = SocketIO(app)
+socketio.sock = SocketIO(app, async_mode='gevent')
 sock = socketio.sock
 
 dev_mode = bool(os.getenv("DEV", False))
