@@ -62,6 +62,14 @@ install: build
 	find templates -type f -exec install -D "{}" "$(DEB_INSTALL_BIN_DIR)/{}" \;
 	find tests -type f -exec install -D "{}" "$(DEB_INSTALL_BIN_DIR)/{}" \;
 
+	# Install IoT.bzh addons
+	cp -a  ../SOURCES/addon-iotbzh $(DEB_INSTALL_BIN_DIR)/.addons/
+	cp ../SOURCES/addon-iotbzh.obsinfo $(DEB_INSTALL_BIN_DIR)/.addons/addon-iotbzh/
+	( cd $(DEB_INSTALL_BIN_DIR)/gateways && ln -s ../.addons/addon-iotbzh/gateways/cn56 )
+	( cd $(DEB_INSTALL_BIN_DIR)/plugins && ln -s ../.addons/addon-iotbzh/plugins/cn56 )
+	( cd $(DEB_INSTALL_BIN_DIR)/plugins && ln -s ../.addons/addon-iotbzh/plugins/jeedom )
+	( cd $(DEB_INSTALL_BIN_DIR)/static && ln -s  ../.addons/addon-iotbzh/plugins/iot-office-map/map.svg )
+
 	# Move all files in their corresponding package
 	dh_install -a --sourcedir $(DEB_BASE_DIR)
 
