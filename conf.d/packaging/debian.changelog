@@ -1,11 +1,7 @@
-access-control (1.0.3) stable;
-
+access-control (1.0.4) stable; urgency=medium
   Fix packaging
-
  -- Sebastien Douheret <sebastien@iot.bzh>  Fri, 29 Aug 2025 17:00:00 +0200
 
-access-control (1.0.0) stable;
-
+access-control (1.0.0) stable; urgency=low
   Initial package
-
  -- Alex Zalo <alex.zalo@iot.bzh>  Wed, 25 Jun 2025 09:37:33 +0200
