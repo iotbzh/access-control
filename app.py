@@ -6,6 +6,9 @@ from sqlalchemy import func, desc
 from dotenv import load_dotenv
 from io import BytesIO
 from datetime import datetime
+import logging
+import hmac
+import threading
 
 from src.models import db, dbs, User, Role, Badge, Reader, Log, Plugin
 from src.auth import is_admin, login_user, login_required, logout_user, current_user, admin_required
@@ -44,7 +47,7 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URI", "sqlite:///database.sqlite")
 
-# Add references to app
+# Add references to app context
 Gateways.app = app
 Plugins.app = app
 openid.app = app
@@ -54,7 +57,7 @@ sock = socketio.sock
 
 dev_mode = bool(os.getenv("DEV", False))
 
-# Import all controllers
+# Register controllers with blueprints
 app.register_blueprint(users_controller)
 app.register_blueprint(badges_controller)
 app.register_blueprint(readers_controller)
@@ -74,7 +77,8 @@ migrate = Migrate(app, db)
 def safe_url_for(endpoint, **values):
     try:
         return url_for(endpoint, **values)
-    except:
+    except Exception as e:
+        logging.error(f"safe_url_for error: {e}")
         return None
 
 # Make the safe_url_for function available inside templates
@@ -100,7 +104,11 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if username == "admin" and os.getenv("ADMIN_PASSWORD") == password:
+
+        # Secure password comparison - compare_digest for constant time, never plain comparison
+        admin_user = "admin"
+        admin_pass = os.getenv("ADMIN_PASSWORD", "")
+        if username == admin_user and hmac.compare_digest(str(admin_pass), str(password)):
             login_user({
                 "username": "admin",
                 "ac_local": True
@@ -142,12 +150,11 @@ def reader_logs(reader_id):
 def logs():
     per_page = int(request.args.get('per_page', 20))
     page = int(request.args.get('page', 1))
-    offset = (page - 1) * per_page
-
-    total_logs = db.session.execute(db.select(func.count()).select_from(Log)).one()[0]
-    logs = db.session.execute(db.select(Log, Reader.name).join(Reader).offset(offset).limit(per_page).order_by(desc(Log.id))).all()
-
-    total_pages = (total_logs + per_page - 1) // per_page
+    # Use paginate for safe and easy pagination
+    pagination = Log.query.order_by(desc(Log.id)).paginate(page=page, per_page=per_page, error_out=False)
+    logs = [(log, log.reader.name if log.reader else None) for log in pagination.items]
+    total_logs = pagination.total
+    total_pages = pagination.pages
 
     return render_template(
         'logs.html',
@@ -163,39 +170,59 @@ def logs_export():
     logs = dbs.execute(db.select(Log, User).join(User, isouter=True)).all()
     formated_logs = []
     for log, user in logs:
-        formated_logs.append(f"[ {log.date_time} ] {user.name if user else '-'} {log.guest or ''} ({log.badge_uid}) {log.result} on reader {log.reader_id} ({log.reason})".encode())
-    return  send_file(
+        formated_logs.append(
+            f"[ {log.date_time} ] {user.name if user else '-'} {log.guest or ''} ({log.badge_uid}) {log.result} on reader {log.reader_id} ({log.reason})".encode()
+        )
+    return send_file(
         BytesIO(b"\n".join(formated_logs)),
         as_attachment=True,
         download_name=f'access-logs_{datetime.now().strftime("%d-%m-%Y")}.txt',
-        mimetype='text/txt'
+        mimetype='text/plain'
     )
 
-# This route if for tests
+# This route is for tests
 @app.route("/tests/access/<gateway_uid>/<reader_id>/<badge_uid>")
 def tests_access(gateway_uid, reader_id, badge_uid):
     gateway = Gateways.get(gateway_uid)
     reader_instance = gateway.get_reader_instance(reader_id)
     return str(access_control(gateway, reader_instance, badge_uid))
 
+# Thread-safe set for connected clients using WeakSet
+connected_clients = set()
+clients_lock = threading.Lock()
+
+@sock.on('connect')
+def handle_connect():
+    with clients_lock:
+        connected_clients.add(request.sid)
+    logging.debug(f'Client connected: {request.sid}')
+
+@sock.on('disconnect')
+def handle_disconnect():
+    with clients_lock:
+        connected_clients.discard(request.sid)
+    logging.debug(f'Client disconnected: {request.sid}')
+
 @sock.on("updateReadersStatus")
 def on_update():
-    readers_instance = BaseGateway.readers.values()
-    status = {}
-    for reader_instance in readers_instance:
-        status[reader_instance.reader.id] = reader_instance.is_online
-    sock.emit("readersStatus", status)
+    try:
+        readers_instance = BaseGateway.readers.values()
+        status = {}
+        for reader_instance in readers_instance:
+            status[reader_instance.reader.id] = reader_instance.is_online
+        emit("readersStatus", status, broadcast=True)
+    except KeyError as e:
+        logging.error(f'Session error: {e}')
+    except Exception as e:
+        logging.error(f'Error updating readers status: {e}')
 
 def startup():
     with app.app_context():
         upgrade()
-
         Logger.init_app("access")
-
         Gateways.init_all()
         Plugins.init_all()
         Settings.init()
-
     init_schedules(app)
 
 def main():
