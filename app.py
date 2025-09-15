@@ -216,11 +216,16 @@ def on_update():
 
 def startup():
     with app.app_context():
+        logging.info('Startup - Upgrade DB...')
         upgrade()
         Logger.init_app("access")
+        logging.info('Startup - Gateways...')
         Gateways.init_all()
+        logging.info('Startup - Plugins...')
         Plugins.init_all()
+        logging.info('Startup - Settings...')
         Settings.init()
+    logging.info('Startup - Schedules tasks...')
     init_schedules(app)
 
 def main():
@@ -229,6 +234,7 @@ def main():
         startup()
     elif not dev_mode:
         startup()
+    logging.info('Backend server ready and listening on http://0.0.0.0:5000')
     sock.run(app, host="0.0.0.0", port=5000, debug=dev_mode)
 
 if __name__ == '__main__':
