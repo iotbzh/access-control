@@ -23,6 +23,7 @@ from src.lib.gateway import BaseGateway
 from src.lib.reader import BaseReader
 from src.access import access_control
 from src.addons import Addons
+from src.lru_cache import LRUCache
 
 # Import all controllers
 from src.controllers.users import bp as users_controller
@@ -187,20 +188,17 @@ def tests_access(gateway_uid, reader_id, badge_uid):
     reader_instance = gateway.get_reader_instance(reader_id)
     return str(access_control(gateway, reader_instance, badge_uid))
 
-# Thread-safe set for connected clients using WeakSet
-connected_clients = set()
-clients_lock = threading.Lock()
+# Thread-safe and LRU cache to maintain connected WS clients
+connected_clients = LRUCache(10000)
 
 @sock.on('connect')
 def handle_connect():
-    with clients_lock:
-        connected_clients.add(request.sid)
+    connected_clients.set(request.sid, {'sid': request.sid})
     logging.debug(f'Client connected: {request.sid}')
 
 @sock.on('disconnect')
 def handle_disconnect():
-    with clients_lock:
-        connected_clients.discard(request.sid)
+    connected_clients.delete(request.sid)
     logging.debug(f'Client disconnected: {request.sid}')
 
 @sock.on("updateReadersStatus")
@@ -210,7 +208,7 @@ def on_update():
         status = {}
         for reader_instance in readers_instance:
             status[reader_instance.reader.id] = reader_instance.is_online
-        emit("readersStatus", status, broadcast=True)
+        sock.emit("readersStatus", status)
     except KeyError as e:
         logging.error(f'Session error: {e}')
     except Exception as e:
